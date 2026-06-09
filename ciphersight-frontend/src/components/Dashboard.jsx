@@ -20,8 +20,8 @@ const customStyles = `
   @keyframes lockdownPulse { 0% { background-color: rgba(239, 68, 68, 0.1); } 50% { background-color: rgba(239, 68, 68, 0.3); } 100% { background-color: rgba(239, 68, 68, 0.1); } }
   .lockdown-overlay { animation: lockdownPulse 1s infinite; }
   
-  /* 📱 MOBILE SIDEBAR TRANSITION */
-  .sidebar-transition { transition: transform 0.3s ease-in-out; }
+  /* 📱 MOBILE & DESKTOP SIDEBAR TRANSITION */
+  .sidebar-transition { transition: transform 0.3s ease-in-out, margin-left 0.3s ease-in-out; }
 `;
 
 // ==========================================
@@ -442,7 +442,7 @@ tr:nth-child(even){background:#f8fafc}
 
 export default function Dashboard({ onBack }) {
   // 📱 NEW: State for Mobile Sidebar
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
   
   const [activeTab, setActiveTab] = useState('Dashboard');
   const [missionStatus, setMissionStatus] = useState("IDLE");
@@ -559,7 +559,9 @@ const simulateRogueDetection = () => {
   // 📱 Helper function to change tabs and close mobile sidebar
   const handleNavClick = (tab) => {
     setActiveTab(tab);
-    setSidebarOpen(false);
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
   };
 
   return (
@@ -609,14 +611,14 @@ const simulateRogueDetection = () => {
       {/* 🚀 MAIN CONTENT WRAPPER */}
       <div className="flex flex-1 overflow-hidden relative">
         
-        {/* LEFT SIDEBAR (Overlay on all screens) */}
-        <div className={`fixed inset-y-0 left-0 w-65 bg-[#0c1322] border-r border-white/5 flex flex-col shadow-2xl z-3000 transform sidebar-transition ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        {/* LEFT SIDEBAR (Inline on desktop, overlay on mobile) */}
+        <div className={`fixed lg:relative inset-y-0 left-0 w-65 bg-[#0c1322] border-r border-white/5 flex flex-col shadow-2xl lg:shadow-none z-3000 lg:z-10 transform sidebar-transition ${isSidebarOpen ? 'translate-x-0 lg:translate-x-0 lg:ml-0' : '-translate-x-full lg:translate-x-0 lg:-ml-65'}`}>
           <div className="flex items-center justify-between p-6 border-b border-white/5">
             <div className="flex items-center gap-3">
               <Siren className="w-6 h-6 text-blue-400" />
               <h1 className="font-black text-xl tracking-tight text-white uppercase">Cipher<span className="text-blue-500">Sight</span></h1>
             </div>
-            <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-white cursor-pointer hover:bg-white/5 p-1.5 rounded-lg transition-all"><X size={20}/></button>
+            <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-gray-400 hover:text-white cursor-pointer hover:bg-white/5 p-1.5 rounded-lg transition-all"><X size={20}/></button>
           </div>
 
           <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-8">
@@ -632,7 +634,7 @@ const simulateRogueDetection = () => {
             <div>
               <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-3 mb-3">Nav</h3>
               <nav className="flex flex-col gap-1">
-                <button onClick={() => {setIsCameraOpen(true); setSidebarOpen(false);}} className="flex items-center gap-3 w-full p-3 rounded-lg text-blue-400 hover:bg-blue-500/10 transition-all font-bold cursor-pointer"><Camera size={18}/> AI CCTV Grid</button>
+                <button onClick={() => {setIsCameraOpen(true); if (window.innerWidth < 1024) setSidebarOpen(false);}} className="flex items-center gap-3 w-full p-3 rounded-lg text-blue-400 hover:bg-blue-500/10 transition-all font-bold cursor-pointer"><Camera size={18}/> AI CCTV Grid</button>
                 <button onClick={() => handleNavClick('Route Setup')} className={`flex items-center gap-3 w-full p-3 rounded-lg transition-all font-bold ${activeTab === 'Route Setup' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-gray-400 hover:bg-white/5'} cursor-pointer`}><Route size={18}/> Route Setup</button>
                 <button onClick={() => handleNavClick('Hospitals')} className={`flex items-center gap-3 w-full p-3 rounded-lg transition-all font-bold ${activeTab === 'Hospitals' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-gray-400 hover:bg-white/5'} cursor-pointer`}><Building2 size={18}/> Hospitals</button>
                 <button onClick={() => handleNavClick('Patient Control')} className={`flex items-center gap-3 w-full p-3 rounded-lg transition-all font-bold ${activeTab === 'Patient Control' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-gray-400 hover:bg-white/5'} cursor-pointer`}><HeartPulse size={18}/> Patient Control</button>
@@ -644,9 +646,9 @@ const simulateRogueDetection = () => {
           </div>
         </div>
 
-        {/* Overlay backdrop (all screens) */}
+        {/* Overlay backdrop (mobile only) */}
         {isSidebarOpen && (
-          <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 bg-black/60 z-2005" />
+          <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 bg-black/60 z-2005 lg:hidden" />
         )}
 
         {/* CENTER MAP AREA */}
