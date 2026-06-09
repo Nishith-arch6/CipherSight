@@ -450,6 +450,8 @@ export default function Dashboard({ onBack }) {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [isAutoSimulating, setIsAutoSimulating] = useState(false);
+  const [cctvError, setCctvError] = useState(false);
+  const [useLocalSim, setUseLocalSim] = useState(false);
   
   // Live State
   const [liveSpeed, setLiveSpeed] = useState(0);
@@ -459,6 +461,7 @@ export default function Dashboard({ onBack }) {
   const [cyberThreat, setCyberThreat] = useState(null);
 
   const socketRef = useRef(null);
+  const localSimIntervalRef = useRef(null);
 
   // Map Coordinates & Detailed Street Routes
   const baseStation = [12.9716, 77.5846];
@@ -470,11 +473,94 @@ export default function Dashboard({ onBack }) {
   const routeToHospA = [[12.9650, 77.5900], [12.9650, 77.5940], [12.9716, 77.5940], [12.9716, 77.5950], [12.9780, 77.5950]];
   const routeToHospB = [[12.9650, 77.5900], [12.9650, 77.5950], [12.9600, 77.5950], [12.9600, 77.6000], [12.9550, 77.6000], [12.9550, 77.6050]];
 
+  const stopLocalSim = () => {
+    if (localSimIntervalRef.current) {
+      clearInterval(localSimIntervalRef.current);
+      localSimIntervalRef.current = null;
+    }
+  };
+
+  const startLocalSimulation = (type, hospId = null) => {
+    stopLocalSim();
+    let step = 0;
+    
+    if (type === 'dispatch') {
+      setMissionStatus('RESPONDING');
+      const route = routeToPatient;
+      localSimIntervalRef.current = setInterval(() => {
+        step++;
+        if (step >= route.length) {
+          setMissionStatus('AT_PATIENT');
+          setLiveSpeed(0);
+          stopLocalSim();
+          return;
+        }
+        setAmbulanceLoc(route[step]);
+        setLiveSpeed(Math.floor(Math.random() * 20) + 25);
+        setLivePreempted(step * 2);
+        
+        setChartData(prev => {
+          const timeLabel = `${step * 2}m`;
+          const etaVal = Math.max(1, 5 - step);
+          const newData = [...prev, { time: timeLabel, eta: etaVal }];
+          const uniqueData = Array.from(new Map(newData.map(item => [item.time, item])).values());
+          if (uniqueData.length > 6) uniqueData.shift();
+          return uniqueData;
+        });
+      }, 1500);
+    } else if (type === 'transport') {
+      setMissionStatus('TRANSPORTING');
+      const route = hospId === 'A' ? routeToHospA : routeToHospB;
+      localSimIntervalRef.current = setInterval(() => {
+        step++;
+        if (step >= route.length) {
+          setMissionStatus('ARRIVED');
+          setLiveSpeed(0);
+          stopLocalSim();
+          return;
+        }
+        setAmbulanceLoc(route[step]);
+        setLiveSpeed(Math.floor(Math.random() * 20) + 25);
+        setLivePreempted(10 + step * 2);
+        
+        setChartData(prev => {
+          const timeLabel = `${10 + step * 2}m`;
+          const etaVal = Math.max(0, route.length - step);
+          const newData = [...prev, { time: timeLabel, eta: etaVal }];
+          const uniqueData = Array.from(new Map(newData.map(item => [item.time, item])).values());
+          if (uniqueData.length > 6) uniqueData.shift();
+          return uniqueData;
+        });
+      }, 1500);
+    }
+  };
+
   useEffect(() => {
     const secureToken = localStorage.getItem('cipher_token');
     const socketUrl = `http://${window.location.hostname}:5000`;
-    socketRef.current = io(socketUrl, { auth: { token: secureToken } });
     
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isLocal) {
+      setUseLocalSim(true);
+      setCctvError(true);
+    }
+
+    socketRef.current = io(socketUrl, { 
+      auth: { token: secureToken },
+      reconnectionAttempts: 1,
+      timeout: 2000
+    });
+    
+    socketRef.current.on('connect', () => {
+      setUseLocalSim(false);
+      setCctvError(false);
+    });
+
+    socketRef.current.on('connect_error', () => {
+      setUseLocalSim(true);
+      setCctvError(true);
+    });
+
     socketRef.current.on('live_tracking', (data) => {
       setAmbulanceLoc(data.location);
       if(data.status) setMissionStatus(data.status);
@@ -494,7 +580,10 @@ export default function Dashboard({ onBack }) {
     socketRef.current.on('status_update', (data) => setMissionStatus(data.status));
     socketRef.current.on('cyber_alert', (data) => setCyberThreat(data));
 
-    return () => socketRef.current.disconnect();
+    return () => {
+      socketRef.current.disconnect();
+      stopLocalSim();
+    };
   }, []);
 
   // Auto-Simulation progression logic
@@ -518,10 +607,25 @@ export default function Dashboard({ onBack }) {
     }
   }, [missionStatus, isAutoSimulating, isCameraOpen]);
 
+  const triggerDispatchUnit = (auto = false) => {
+    if (auto) {
+      setIsAutoSimulating(true);
+    }
+    if (useLocalSim || !socketRef.current || !socketRef.current.connected) {
+      startLocalSimulation('dispatch');
+    } else {
+      socketRef.current.emit('dispatch_unit');
+    }
+  };
+
   const dispatchToHospital = (hospId) => {
     setSelectedHospital(hospId);
-    socketRef.current.emit('start_transport', { hospital: hospId });
     setChartData([{ time: '0m', eta: 12 }]); 
+    if (useLocalSim || !socketRef.current || !socketRef.current.connected) {
+      startLocalSimulation('transport', hospId);
+    } else {
+      socketRef.current.emit('start_transport', { hospital: hospId });
+    }
   };
 
   const resetSim = () => {
@@ -531,7 +635,14 @@ export default function Dashboard({ onBack }) {
     setChartData([{ time: '0m', eta: 12 }]);
     setIsAutoSimulating(false);
     setIsCameraOpen(false);
-    socketRef.current.emit('reset_sim');
+    stopLocalSim();
+    setAmbulanceLoc([12.9716, 77.5846]);
+    setMissionStatus("IDLE");
+    setLiveSpeed(0);
+    setLivePreempted(0);
+    if (socketRef.current && socketRef.current.connected) {
+      socketRef.current.emit('reset_sim');
+    }
   };
 
 const simulateRogueDetection = () => {
@@ -673,10 +784,10 @@ const simulateRogueDetection = () => {
               <div className="flex flex-col gap-2">
                 {missionStatus === 'IDLE' && (
                   <div className="flex flex-col gap-2">
-                    <button onClick={() => socketRef.current.emit('dispatch_unit')} className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-xs tracking-widest transition-all shadow-[0_0_20px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 cursor-pointer uppercase">
+                    <button onClick={() => triggerDispatchUnit(false)} className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-xs tracking-widest transition-all shadow-[0_0_20px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 cursor-pointer uppercase">
                       <Play size={16}/> Dispatch Command
                     </button>
-                    <button onClick={() => { setIsAutoSimulating(true); socketRef.current.emit('dispatch_unit'); }} className="w-full py-3 bg-[#9D00FF]/20 hover:bg-[#9D00FF]/40 border border-[#9D00FF]/50 text-[#9D00FF] rounded-xl font-black text-xs tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer uppercase">
+                    <button onClick={() => triggerDispatchUnit(true)} className="w-full py-3 bg-[#9D00FF]/20 hover:bg-[#9D00FF]/40 border border-[#9D00FF]/50 text-[#9D00FF] rounded-xl font-black text-xs tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer uppercase">
                       <Activity size={16}/> Auto-Simulate Scenario
                     </button>
                   </div>
@@ -774,7 +885,39 @@ const simulateRogueDetection = () => {
                   <button onClick={() => setIsCameraOpen(false)} className="p-1 lg:p-2 hover:bg-white/10 rounded-full transition-all cursor-pointer text-white"><X size={isAutoSimulating ? 14 : 20}/></button>
                 </div>
                 <div className="flex-1 overflow-hidden flex items-center justify-center bg-black">
-                  <img src={`http://${window.location.hostname}:5000/api/cctv`} alt="Live AI Stream" className="w-full h-full object-contain" />
+                  {cctvError ? (
+                    <div className="relative w-full h-full">
+                      <video
+                        src="/traffic.mp4"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute border-2 border-red-500 bg-red-500/10 px-2 py-0.5 text-[9px] font-bold text-red-500" style={{ top: '35%', left: '42%', width: '120px', height: '90px' }}>
+                          Ambulance: 98%
+                        </div>
+                        <div className="absolute border-2 border-emerald-400 bg-emerald-400/5 px-2 py-0.5 text-[9px] font-bold text-emerald-400" style={{ top: '50%', left: '15%', width: '80px', height: '60px' }}>
+                          Car: 92%
+                        </div>
+                        <div className="absolute border-2 border-emerald-400 bg-emerald-400/5 px-2 py-0.5 text-[9px] font-bold text-emerald-400" style={{ top: '25%', left: '70%', width: '70px', height: '50px' }}>
+                          Car: 87%
+                        </div>
+                        <div className="absolute bottom-2 left-2 bg-black/60 px-2 py-1 text-[9px] text-emerald-400 font-mono rounded">
+                          [DEMO] YOLOv8 AI Grid Vision Active
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <img 
+                      src={`http://${window.location.hostname}:5000/api/cctv`} 
+                      alt="Live AI Stream" 
+                      className="w-full h-full object-contain" 
+                      onError={() => setCctvError(true)}
+                    />
+                  )}
                 </div>
                 {!isAutoSimulating && (
                   <div className="p-3 lg:p-4 bg-black/50 text-[10px] font-mono text-gray-400 flex justify-between items-center relative z-10 shrink-0">
