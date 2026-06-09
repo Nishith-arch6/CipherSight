@@ -1,0 +1,9 @@
+[tool.pyrefly]
+python_version = "3.13"
+python_interpreter = "C:/Users/Nishith/Downloads/CipherSight/ciphersight-backend/venv/Scripts/python.exe"
+site_package_path = [
+    "C:/Users/Nishith/Downloads/CipherSight/ciphersight-backend/venv/Lib/site-packages"
+]
+
+# Suppress false positives for packages without bundled type stubs (cv2, ultralytics, etc.)
+use_untyped_imports = true
