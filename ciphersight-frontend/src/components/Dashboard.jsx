@@ -468,15 +468,19 @@ const simulateRogueDetection = () => {
     <div className="flex flex-col h-screen w-full bg-[#030712] text-white font-sans overflow-hidden relative">
       <style>{customStyles}</style>
       
-      {/* 📱 MOBILE HEADER (Visible only on small screens) */}
-      <div className="lg:hidden flex items-center justify-between p-4 bg-[#0c1322] border-b border-white/5 z-2001">
-        <div className="flex items-center gap-2">
+      {/* UNIVERSAL HEADER with hamburger toggle */}
+      <div className="flex items-center justify-between px-4 py-3 bg-[#0c1322] border-b border-white/5 z-2001">
+        <div className="flex items-center gap-3">
+          <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-all cursor-pointer">
+            <Menu size={20} />
+          </button>
           <Siren className="w-5 h-5 text-blue-500" />
           <span className="font-black text-sm tracking-tight uppercase">CIPHER<span className="text-blue-500">SIGHT</span></span>
         </div>
-        <button onClick={() => setSidebarOpen(true)} className="p-2 text-gray-400 hover:text-white cursor-pointer">
-          <Menu size={24} />
-        </button>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest hidden sm:block">Operator Console</span>
+          <button className="p-2 bg-white/5 rounded-full text-white hover:bg-white/10 cursor-pointer"><User size={16} /></button>
+        </div>
       </div>
 
       <FeaturePanels activeTab={activeTab} onClose={() => setActiveTab('Dashboard')} />
@@ -507,15 +511,14 @@ const simulateRogueDetection = () => {
       {/* 🚀 MAIN CONTENT WRAPPER */}
       <div className="flex flex-1 overflow-hidden relative">
         
-        {/* LEFT SIDEBAR (Responsive Sliding) */}
-        <div className={`fixed inset-y-0 left-0 w-65 bg-[#0c1322] border-r border-white/5 flex flex-col shadow-2xl z-3000 transform sidebar-transition lg:relative lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        {/* LEFT SIDEBAR (Collapsible on all screens) */}
+        <div className={`fixed inset-y-0 left-0 w-65 bg-[#0c1322] border-r border-white/5 flex flex-col shadow-2xl z-3000 transform sidebar-transition ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="flex items-center justify-between p-6 border-b border-white/5">
             <div className="flex items-center gap-3">
               <Siren className="w-6 h-6 text-blue-400" />
               <h1 className="font-black text-xl tracking-tight text-white uppercase">Cipher<span className="text-blue-500">Sight</span></h1>
             </div>
-            {/* Mobile Close Button */}
-            <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-gray-400 hover:text-white cursor-pointer"><X size={20}/></button>
+            <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-white cursor-pointer hover:bg-white/5 p-1.5 rounded-lg transition-all"><X size={20}/></button>
           </div>
 
           <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-8">
@@ -543,21 +546,16 @@ const simulateRogueDetection = () => {
           </div>
         </div>
 
-        {/* 📱 Mobile Overlay (Dims map when sidebar is open) */}
+        {/* Overlay backdrop (all screens) */}
         {isSidebarOpen && (
-          <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 bg-black/60 z-2005 lg:hidden" />
+          <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 bg-black/60 z-2005" />
         )}
 
         {/* CENTER MAP AREA */}
         <div className="flex-1 relative bg-[#050810] flex flex-col overflow-hidden">
           
           {/* Header Strip */}
-          <div className="absolute top-0 w-full h-16 bg-linear-to-b from-[#030712] to-transparent z-1000 pointer-events-none flex items-center justify-end px-6">
-            <div className="flex items-center gap-4 pointer-events-auto">
-              <button className="p-2 bg-white/5 rounded-full text-white hover:bg-white/10 cursor-pointer"><Siren size={18} /></button>
-              <button className="p-2 bg-white/5 rounded-full text-white hover:bg-white/10 cursor-pointer"><User size={18} /></button>
-            </div>
-          </div>
+          <div className="absolute top-0 w-full h-12 bg-linear-to-b from-[#030712] to-transparent z-1000 pointer-events-none" />
 
           {/* Interactive Mission Control Panel (Responsive) */}
           <div className="absolute bottom-4 left-4 right-4 lg:bottom-6 lg:left-1/2 lg:transform lg:-translate-x-1/2 z-1000 lg:w-full lg:max-w-md">
