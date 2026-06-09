@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { Siren, Map as MapIcon, Camera, X, Play, RotateCcw, Activity, ShieldCheck, User, LogOut, Info, AlertTriangle, Fingerprint, LayoutDashboard, Route, Building2, FileText, HeartPulse, Menu } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts';
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts';
 import { io } from 'socket.io-client';
 
 // ==========================================
@@ -80,9 +80,99 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 // ==========================================
+// 📊 OFFLINE ANALYTICS DATA & HELPERS
+// ==========================================
+const offlineAnalyticsData = [
+  { time: "00:00", responseTime: 6.5, congestion: 10 },
+  { time: "04:00", responseTime: 6.0, congestion: 5 },
+  { time: "08:00", responseTime: 14.2, congestion: 85 },
+  { time: "10:00", responseTime: 9.5, congestion: 50 },
+  { time: "12:00", responseTime: 8.5, congestion: 40 },
+  { time: "16:00", responseTime: 10.1, congestion: 65 },
+  { time: "18:00", responseTime: 15.5, congestion: 90 },
+  { time: "20:00", responseTime: 9.0, congestion: 45 },
+  { time: "23:00", responseTime: 7.2, congestion: 20 }
+];
+
+const analyticsMetricConfig = {
+  responseTime: { dataKey: 'responseTime', color: '#3b82f6', name: 'Response Time (mins)', domain: [0, 20] },
+  congestion: { dataKey: 'congestion', color: '#ef4444', name: 'Grid Congestion (%)', domain: [0, 100] }
+};
+
+const AnalyticsKpiCard = ({ title, value, trend, trendColor }) => (
+  <div className="flex-1 bg-[#1e293b] p-4 md:p-5 rounded-xl border border-[#334155]">
+    <div className="text-gray-400 text-xs font-bold mb-2 uppercase tracking-wider">{title}</div>
+    <div className="text-2xl md:text-3xl font-black mb-1">{value}</div>
+    <div className="text-xs font-semibold" style={{ color: trendColor }}>{trend}</div>
+  </div>
+);
+
+const getMetricBtnStyle = (isActive, activeColor) => ({
+  padding: '8px 16px', backgroundColor: isActive ? activeColor + '20' : 'transparent',
+  color: isActive ? activeColor : '#94a3b8', border: `1px solid ${isActive ? activeColor : '#334155'}`,
+  borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', transition: 'all 0.2s'
+});
+
+// ==========================================
 // 🚀 FEATURE PANELS (Sidebar Content)
 // ==========================================
 const FeaturePanels = ({ activeTab, onClose }) => {
+  const [analyticsMetric, setAnalyticsMetric] = useState('responseTime');
+  const metricCfg = analyticsMetricConfig[analyticsMetric];
+
+  const handleDownloadCSV = () => {
+    const headers = 'Time,Response Time (mins),Congestion (%)\n';
+    const rows = offlineAnalyticsData.map(d => `${d.time},${d.responseTime},${d.congestion}`).join('\n');
+    const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `CipherSight_Analytics_${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadPDF = () => {
+    const rows = offlineAnalyticsData.map(d => {
+      const status = d.congestion > 70 ? 'HIGH' : d.congestion > 40 ? 'MODERATE' : 'LOW';
+      const statusColor = d.congestion > 70 ? '#ef4444' : d.congestion > 40 ? '#f59e0b' : '#10b981';
+      return `<tr><td>${d.time}</td><td>${d.responseTime}</td><td>${d.congestion}%</td><td style="color:${statusColor};font-weight:bold">${status}</td></tr>`;
+    }).join('');
+    const reportHTML = `<!DOCTYPE html><html><head><title>CipherSight Analytics Report</title>
+<style>body{font-family:'Segoe UI',sans-serif;padding:40px;color:#1e293b;max-width:900px;margin:0 auto}
+h1{color:#0f172a;border-bottom:3px solid #3b82f6;padding-bottom:10px;font-size:24px}
+.meta{color:#64748b;margin-bottom:30px;font-size:13px}
+.kpi-row{display:flex;gap:20px;margin-bottom:30px}
+.kpi{flex:1;background:#f1f5f9;padding:20px;border-radius:8px;border-left:4px solid #3b82f6}
+.kpi-title{color:#64748b;font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.kpi-value{font-size:28px;font-weight:800;color:#0f172a}
+.kpi-trend{font-size:11px;margin-top:4px}
+table{width:100%;border-collapse:collapse;margin-top:20px}
+th{background:#0f172a;color:white;padding:12px 16px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+td{padding:12px 16px;border-bottom:1px solid #e2e8f0}
+tr:nth-child(even){background:#f8fafc}
+.footer{margin-top:40px;padding-top:20px;border-top:1px solid #e2e8f0;color:#94a3b8;font-size:11px;text-align:center}
+@media print{body{padding:20px}}</style></head><body>
+<h1>CipherSight Analytics Report</h1>
+<p class="meta">Generated: ${new Date().toLocaleString()} &bull; Mode: Offline Analysis &bull; System: CipherSight Preemption Grid</p>
+<div class="kpi-row">
+<div class="kpi"><div class="kpi-title">Avg Response Time</div><div class="kpi-value">8m 45s</div><div class="kpi-trend" style="color:#10b981">&#8595; 12% vs last week</div></div>
+<div class="kpi"><div class="kpi-title">AI Overrides Today</div><div class="kpi-value">24</div><div class="kpi-trend" style="color:#3b82f6">System normal</div></div>
+<div class="kpi"><div class="kpi-title">Grid Congestion</div><div class="kpi-value">42%</div><div class="kpi-trend" style="color:#94a3b8">Normal Capacity</div></div>
+</div>
+<h2>Historical Grid Data</h2>
+<table><thead><tr><th>Time</th><th>Response Time (mins)</th><th>Congestion (%)</th><th>Status</th></tr></thead>
+<tbody>${rows}</tbody></table>
+<div class="footer">CipherSight Urban Traffic Preemption Grid &mdash; Confidential Report</div>
+</body></html>`;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(reportHTML);
+    printWindow.document.close();
+    setTimeout(() => printWindow.print(), 500);
+  };
+
   if (activeTab === 'Home' || activeTab === 'Dashboard') return null;
 
   return (
@@ -177,9 +267,70 @@ const FeaturePanels = ({ activeTab, onClose }) => {
           )}
 
           {activeTab === 'Analytics' && (
-            <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-               <Activity size={48} className="mb-4 opacity-50" />
-               <p>Historical analytics module is currently processing grid data...</p>
+            <div>
+              {/* Offline Mode Badge */}
+              <div className="flex items-center gap-2 mb-5 bg-amber-500/10 border border-amber-500/20 px-4 py-2 rounded-lg w-fit">
+                <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+                <span className="text-amber-400 text-xs font-bold uppercase tracking-widest">Offline Mode — Local Cache</span>
+              </div>
+
+              {/* KPI Cards */}
+              <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-6">
+                <AnalyticsKpiCard title="Avg Response Time" value="8m 45s" trend="↓ 12% vs last week" trendColor="#10b981" />
+                <AnalyticsKpiCard title="AI Overrides Today" value="24" trend="System normal" trendColor="#3b82f6" />
+                <AnalyticsKpiCard title="Grid Congestion" value="42%" trend="Normal Capacity" trendColor="#94a3b8" />
+              </div>
+
+              {/* Chart Controls */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                <button onClick={() => setAnalyticsMetric('responseTime')} style={getMetricBtnStyle(analyticsMetric === 'responseTime', '#3b82f6')}>Response Times</button>
+                <button onClick={() => setAnalyticsMetric('congestion')} style={getMetricBtnStyle(analyticsMetric === 'congestion', '#ef4444')}>Congestion Level</button>
+              </div>
+
+              {/* Area Chart */}
+              <div className="w-full bg-[#1e293b] rounded-xl p-2 md:p-4 mb-6" style={{ height: '300px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={offlineAnalyticsData}>
+                    <defs>
+                      <linearGradient id="analyticsGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={metricCfg.color} stopOpacity={0.4}/>
+                        <stop offset="95%" stopColor={metricCfg.color} stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                    <XAxis dataKey="time" stroke="#94a3b8" fontSize={12} tickMargin={10} />
+                    <YAxis stroke="#94a3b8" fontSize={12} domain={metricCfg.domain} />
+                    <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#fff', borderRadius: '6px' }} itemStyle={{ color: metricCfg.color, fontWeight: 'bold' }} />
+                    <Area type="monotone" dataKey={metricCfg.dataKey} name={metricCfg.name} stroke={metricCfg.color} strokeWidth={3} fillOpacity={1} fill="url(#analyticsGradient)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Data Table */}
+              <div className="w-full border border-white/10 rounded-xl overflow-hidden text-sm mb-6">
+                <div className="grid grid-cols-3 bg-white/5 p-3 font-bold text-gray-400 uppercase text-[10px] tracking-widest">
+                  <div>Time</div><div>Response (mins)</div><div>Congestion</div>
+                </div>
+                {offlineAnalyticsData.map((d, i) => (
+                  <div key={i} className="grid grid-cols-3 p-3 border-t border-white/5 text-sm">
+                    <div className="text-gray-300">{d.time}</div>
+                    <div className="text-blue-400 font-bold">{d.responseTime}</div>
+                    <div className={`font-bold ${d.congestion > 70 ? 'text-red-400' : d.congestion > 40 ? 'text-amber-400' : 'text-emerald-400'}`}>{d.congestion}%</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Download Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button onClick={handleDownloadCSV} className="flex-1 py-3 px-5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl font-bold text-sm tracking-wide hover:bg-emerald-500/20 transition-all cursor-pointer flex items-center justify-center gap-2">
+                  📥 Download CSV Report
+                </button>
+                <button onClick={handleDownloadPDF} className="flex-1 py-3 px-5 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded-xl font-bold text-sm tracking-wide hover:bg-blue-500/20 transition-all cursor-pointer flex items-center justify-center gap-2">
+                  📄 Download PDF Report
+                </button>
+              </div>
+
+              <p className="text-[10px] text-gray-500 mt-4 text-center uppercase tracking-widest">⚡ Offline Mode — Data sourced from local cache</p>
             </div>
           )}
         </div>
