@@ -612,7 +612,7 @@ const simulateRogueDetection = () => {
       <div className="flex flex-1 overflow-hidden relative">
         
         {/* LEFT SIDEBAR (Inline on desktop, overlay on mobile) */}
-        <div className={`fixed lg:relative inset-y-0 left-0 w-65 bg-[#0c1322] border-r border-white/5 flex flex-col shadow-2xl lg:shadow-none z-3000 lg:z-10 transform sidebar-transition ${isSidebarOpen ? 'translate-x-0 lg:translate-x-0 lg:ml-0' : '-translate-x-full lg:translate-x-0 lg:-ml-65'}`}>
+        <div className={`fixed lg:relative inset-y-0 left-0 w-[260px] bg-[#0c1322] border-r border-white/5 flex flex-col shadow-2xl lg:shadow-none z-3000 lg:z-10 transform sidebar-transition ${isSidebarOpen ? 'translate-x-0 lg:translate-x-0 lg:ml-0' : '-translate-x-full lg:translate-x-0 lg:-ml-[260px]'}`}>
           <div className="flex items-center justify-between p-6 border-b border-white/5">
             <div className="flex items-center gap-3">
               <Siren className="w-6 h-6 text-blue-400" />
