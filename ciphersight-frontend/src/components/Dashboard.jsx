@@ -100,10 +100,10 @@ const analyticsMetricConfig = {
 };
 
 const AnalyticsKpiCard = ({ title, value, trend, trendColor }) => (
-  <div className="flex-1 bg-[#1e293b] p-4 md:p-5 rounded-xl border border-[#334155]">
-    <div className="text-gray-400 text-xs font-bold mb-2 uppercase tracking-wider">{title}</div>
-    <div className="text-2xl md:text-3xl font-black mb-1">{value}</div>
-    <div className="text-xs font-semibold" style={{ color: trendColor }}>{trend}</div>
+  <div className="flex-1 bg-[#111827] px-4 py-3 rounded-lg border border-white/5 min-w-0">
+    <div className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1">{title}</div>
+    <div className="text-xl font-black leading-tight">{value}</div>
+    <div className="text-[11px] font-semibold mt-0.5" style={{ color: trendColor }}>{trend}</div>
   </div>
 );
 
@@ -176,8 +176,8 @@ tr:nth-child(even){background:#f8fafc}
   if (activeTab === 'Home' || activeTab === 'Dashboard') return null;
 
   return (
-    <div className="absolute inset-0 z-2000 bg-black/80 backdrop-blur-md flex items-center justify-center p-6 md:p-12">
-      <div className="w-full max-w-4xl bg-[#0a0f1c] border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative min-h-125 flex flex-col animate-in fade-in zoom-in duration-200">
+    <div className="absolute inset-0 z-2000 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 md:p-8">
+      <div className={`w-full ${activeTab === 'Analytics' ? 'max-w-6xl' : 'max-w-4xl'} bg-[#0a0f1c] border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative min-h-125 flex flex-col animate-in fade-in zoom-in duration-200 transition-all`}>
         
         <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
           <div className="flex items-center gap-3">
@@ -267,70 +267,73 @@ tr:nth-child(even){background:#f8fafc}
           )}
 
           {activeTab === 'Analytics' && (
-            <div>
-              {/* Offline Mode Badge */}
-              <div className="flex items-center gap-2 mb-5 bg-amber-500/10 border border-amber-500/20 px-4 py-2 rounded-lg w-fit">
-                <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
-                <span className="text-amber-400 text-xs font-bold uppercase tracking-widest">Offline Mode — Local Cache</span>
-              </div>
-
-              {/* KPI Cards */}
-              <div className="flex flex-col md:flex-row gap-3 md:gap-4 mb-6">
-                <AnalyticsKpiCard title="Avg Response Time" value="8m 45s" trend="↓ 12% vs last week" trendColor="#10b981" />
-                <AnalyticsKpiCard title="AI Overrides Today" value="24" trend="System normal" trendColor="#3b82f6" />
-                <AnalyticsKpiCard title="Grid Congestion" value="42%" trend="Normal Capacity" trendColor="#94a3b8" />
+            <div className="-mt-2">
+              {/* Top Row: KPI Cards + Download Buttons */}
+              <div className="flex flex-col md:flex-row md:items-start gap-3 mb-4">
+                <div className="flex flex-1 gap-2 min-w-0">
+                  <AnalyticsKpiCard title="Avg Response" value="8m 45s" trend="↓ 12%" trendColor="#10b981" />
+                  <AnalyticsKpiCard title="AI Overrides" value="24" trend="Normal" trendColor="#3b82f6" />
+                  <AnalyticsKpiCard title="Congestion" value="42%" trend="Nominal" trendColor="#94a3b8" />
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <button onClick={handleDownloadCSV} className="px-3 py-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-lg font-bold text-xs hover:bg-emerald-500/20 transition-all cursor-pointer flex items-center gap-1.5">
+                    📥 CSV
+                  </button>
+                  <button onClick={handleDownloadPDF} className="px-3 py-2 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded-lg font-bold text-xs hover:bg-blue-500/20 transition-all cursor-pointer flex items-center gap-1.5">
+                    📄 PDF
+                  </button>
+                </div>
               </div>
 
               {/* Chart Controls */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                <button onClick={() => setAnalyticsMetric('responseTime')} style={getMetricBtnStyle(analyticsMetric === 'responseTime', '#3b82f6')}>Response Times</button>
-                <button onClick={() => setAnalyticsMetric('congestion')} style={getMetricBtnStyle(analyticsMetric === 'congestion', '#ef4444')}>Congestion Level</button>
-              </div>
-
-              {/* Area Chart */}
-              <div className="w-full bg-[#1e293b] rounded-xl p-2 md:p-4 mb-6" style={{ height: '300px' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={offlineAnalyticsData}>
-                    <defs>
-                      <linearGradient id="analyticsGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={metricCfg.color} stopOpacity={0.4}/>
-                        <stop offset="95%" stopColor={metricCfg.color} stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                    <XAxis dataKey="time" stroke="#94a3b8" fontSize={12} tickMargin={10} />
-                    <YAxis stroke="#94a3b8" fontSize={12} domain={metricCfg.domain} />
-                    <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#fff', borderRadius: '6px' }} itemStyle={{ color: metricCfg.color, fontWeight: 'bold' }} />
-                    <Area type="monotone" dataKey={metricCfg.dataKey} name={metricCfg.name} stroke={metricCfg.color} strokeWidth={3} fillOpacity={1} fill="url(#analyticsGradient)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Data Table */}
-              <div className="w-full border border-white/10 rounded-xl overflow-hidden text-sm mb-6">
-                <div className="grid grid-cols-3 bg-white/5 p-3 font-bold text-gray-400 uppercase text-[10px] tracking-widest">
-                  <div>Time</div><div>Response (mins)</div><div>Congestion</div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex gap-2">
+                  <button onClick={() => setAnalyticsMetric('responseTime')} style={getMetricBtnStyle(analyticsMetric === 'responseTime', '#3b82f6')}>Response Times</button>
+                  <button onClick={() => setAnalyticsMetric('congestion')} style={getMetricBtnStyle(analyticsMetric === 'congestion', '#ef4444')}>Congestion</button>
                 </div>
-                {offlineAnalyticsData.map((d, i) => (
-                  <div key={i} className="grid grid-cols-3 p-3 border-t border-white/5 text-sm">
-                    <div className="text-gray-300">{d.time}</div>
-                    <div className="text-blue-400 font-bold">{d.responseTime}</div>
-                    <div className={`font-bold ${d.congestion > 70 ? 'text-red-400' : d.congestion > 40 ? 'text-amber-400' : 'text-emerald-400'}`}>{d.congestion}%</div>
+                <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/15 px-2.5 py-1 rounded-md">
+                  <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
+                  <span className="text-amber-400 text-[9px] font-bold uppercase tracking-widest">Offline</span>
+                </div>
+              </div>
+
+              {/* 2-Column: Chart + Table */}
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+                {/* Chart — takes 3 columns */}
+                <div className="lg:col-span-3 bg-[#111827] rounded-xl p-3 border border-white/5" style={{ height: '320px' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={offlineAnalyticsData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="analyticsGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={metricCfg.color} stopOpacity={0.35}/>
+                          <stop offset="95%" stopColor={metricCfg.color} stopOpacity={0.02}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                      <XAxis dataKey="time" stroke="#475569" fontSize={11} tickMargin={8} axisLine={false} tickLine={false} />
+                      <YAxis stroke="#475569" fontSize={11} domain={metricCfg.domain} axisLine={false} tickLine={false} />
+                      <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#fff', borderRadius: '8px', fontSize: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }} itemStyle={{ color: metricCfg.color, fontWeight: 'bold' }} />
+                      <Area type="monotone" dataKey={metricCfg.dataKey} name={metricCfg.name} stroke={metricCfg.color} strokeWidth={2.5} fillOpacity={1} fill="url(#analyticsGradient)" dot={{ r: 3, fill: metricCfg.color, strokeWidth: 0 }} activeDot={{ r: 5, fill: metricCfg.color, stroke: '#0f172a', strokeWidth: 2 }} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Table — takes 2 columns */}
+                <div className="lg:col-span-2 bg-[#111827] rounded-xl border border-white/5 overflow-hidden flex flex-col" style={{ height: '320px' }}>
+                  <div className="grid grid-cols-3 bg-white/5 px-3 py-2 font-bold text-gray-500 uppercase text-[9px] tracking-widest shrink-0">
+                    <div>Time</div><div className="text-center">Resp.</div><div className="text-right">Cong.</div>
                   </div>
-                ))}
+                  <div className="flex-1 overflow-y-auto">
+                    {offlineAnalyticsData.map((d, i) => (
+                      <div key={i} className="grid grid-cols-3 px-3 py-2 border-t border-white/[0.03] text-xs hover:bg-white/[0.02] transition-colors">
+                        <div className="text-gray-400 font-mono">{d.time}</div>
+                        <div className="text-blue-400 font-bold text-center">{d.responseTime}m</div>
+                        <div className={`font-bold text-right ${d.congestion > 70 ? 'text-red-400' : d.congestion > 40 ? 'text-amber-400' : 'text-emerald-400'}`}>{d.congestion}%</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-
-              {/* Download Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button onClick={handleDownloadCSV} className="flex-1 py-3 px-5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl font-bold text-sm tracking-wide hover:bg-emerald-500/20 transition-all cursor-pointer flex items-center justify-center gap-2">
-                  📥 Download CSV Report
-                </button>
-                <button onClick={handleDownloadPDF} className="flex-1 py-3 px-5 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded-xl font-bold text-sm tracking-wide hover:bg-blue-500/20 transition-all cursor-pointer flex items-center justify-center gap-2">
-                  📄 Download PDF Report
-                </button>
-              </div>
-
-              <p className="text-[10px] text-gray-500 mt-4 text-center uppercase tracking-widest">⚡ Offline Mode — Data sourced from local cache</p>
             </div>
           )}
         </div>
