@@ -215,70 +215,94 @@ tr:nth-child(even){background:#f8fafc}
 
               {/* HOSPITAL RESOURCE AVAILABILITY */}
               <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-3">Hospital Resource Availability</h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-                {/* City Central Hospital */}
-                <div className="bg-[#111827] rounded-xl border border-emerald-500/20 overflow-hidden">
-                  <div className="flex items-center justify-between px-5 py-3 bg-emerald-500/10 border-b border-emerald-500/10">
-                    <div className="flex items-center gap-2">
-                      <Building2 size={16} className="text-emerald-400" />
-                      <h4 className="font-black text-sm">City Central Hospital</h4>
-                    </div>
-                    <span className="text-[9px] font-bold uppercase tracking-widest bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded">Trauma II</span>
-                  </div>
-                  <div className="p-4 grid grid-cols-2 gap-3">
-                    {[
-                      { label: 'ICU Beds', available: 3, total: 20, color: 'text-red-400', barColor: 'bg-red-500', pct: 85 },
-                      { label: 'Ventilators', available: 5, total: 15, color: 'text-amber-400', barColor: 'bg-amber-500', pct: 67 },
-                      { label: 'Blood Bank', available: 42, total: 50, color: 'text-emerald-400', barColor: 'bg-emerald-500', pct: 16 },
-                      { label: 'Operating Rooms', available: 1, total: 6, color: 'text-red-400', barColor: 'bg-red-500', pct: 83 },
-                      { label: 'Ambulance Fleet', available: 4, total: 8, color: 'text-amber-400', barColor: 'bg-amber-500', pct: 50 },
-                      { label: 'Staff On Duty', available: 34, total: 45, color: 'text-emerald-400', barColor: 'bg-emerald-500', pct: 76 },
-                    ].map((res, i) => (
-                      <div key={i} className="bg-white/[0.03] rounded-lg px-3 py-2.5 border border-white/5">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{res.label}</span>
-                          <span className={`text-xs font-black ${res.color}`}>{res.available}<span className="text-gray-600">/{res.total}</span></span>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                {[
+                  {
+                    name: 'City Central Hospital', type: 'Trauma II', icon: 'building',
+                    accent: 'emerald', status: 'Operational',
+                    resources: [
+                      { label: 'ICU Beds', avail: 3, total: 20 },
+                      { label: 'Ventilators', avail: 5, total: 15 },
+                      { label: 'Blood Bank (units)', avail: 42, total: 50 },
+                      { label: 'Operating Rooms', avail: 1, total: 6 },
+                      { label: 'Ambulances', avail: 4, total: 8 },
+                      { label: 'Staff On Duty', avail: 34, total: 45 },
+                    ]
+                  },
+                  {
+                    name: 'Apollo Trauma Center', type: 'Trauma I', icon: 'heart',
+                    accent: 'blue', status: 'Operational',
+                    resources: [
+                      { label: 'ICU Beds', avail: 12, total: 30 },
+                      { label: 'Ventilators', avail: 8, total: 20 },
+                      { label: 'Blood Bank (units)', avail: 38, total: 60 },
+                      { label: 'Operating Rooms', avail: 4, total: 10 },
+                      { label: 'Ambulances', avail: 7, total: 12 },
+                      { label: 'Staff On Duty', avail: 56, total: 70 },
+                    ]
+                  },
+                  {
+                    name: 'General Medical Center', type: 'Trauma III', icon: 'building',
+                    accent: 'amber', status: 'High Load',
+                    resources: [
+                      { label: 'ICU Beds', avail: 2, total: 12 },
+                      { label: 'Ventilators', avail: 3, total: 10 },
+                      { label: 'Blood Bank (units)', avail: 18, total: 30 },
+                      { label: 'Operating Rooms', avail: 1, total: 4 },
+                      { label: 'Ambulances', avail: 2, total: 5 },
+                      { label: 'Staff On Duty', avail: 22, total: 30 },
+                    ]
+                  },
+                  {
+                    name: "St. Mary's Care Hospital", type: 'General', icon: 'heart',
+                    accent: 'purple', status: 'Operational',
+                    resources: [
+                      { label: 'ICU Beds', avail: 8, total: 15 },
+                      { label: 'Ventilators', avail: 6, total: 8 },
+                      { label: 'Blood Bank (units)', avail: 25, total: 35 },
+                      { label: 'Operating Rooms', avail: 3, total: 5 },
+                      { label: 'Ambulances', avail: 3, total: 6 },
+                      { label: 'Staff On Duty', avail: 28, total: 35 },
+                    ]
+                  },
+                ].map((hosp, hi) => {
+                  const colors = {
+                    emerald: { border: 'border-emerald-500/20', headerBg: 'bg-emerald-500/10', text: 'text-emerald-400', badge: 'bg-emerald-500/20 text-emerald-400' },
+                    blue: { border: 'border-blue-500/20', headerBg: 'bg-blue-500/10', text: 'text-blue-400', badge: 'bg-blue-500/20 text-blue-400' },
+                    amber: { border: 'border-amber-500/20', headerBg: 'bg-amber-500/10', text: 'text-amber-400', badge: 'bg-amber-500/20 text-amber-400' },
+                    purple: { border: 'border-purple-500/20', headerBg: 'bg-purple-500/10', text: 'text-purple-400', badge: 'bg-purple-500/20 text-purple-400' },
+                  }[hosp.accent];
+                  return (
+                    <div key={hi} className={`bg-[#111827] rounded-xl ${colors.border} border overflow-hidden`}>
+                      <div className={`flex items-center justify-between px-4 py-2.5 ${colors.headerBg} border-b ${colors.border}`}>
+                        <div className="flex items-center gap-2">
+                          {hosp.icon === 'building' ? <Building2 size={14} className={colors.text} /> : <HeartPulse size={14} className={colors.text} />}
+                          <h4 className="font-black text-xs">{hosp.name}</h4>
                         </div>
-                        <div className="w-full bg-black/40 rounded-full h-1.5">
-                          <div className={`${res.barColor} h-1.5 rounded-full transition-all`} style={{ width: `${res.pct}%` }} />
+                        <div className="flex items-center gap-2">
+                          <span className={`text-[8px] font-bold uppercase tracking-widest ${colors.badge} px-1.5 py-0.5 rounded`}>{hosp.type}</span>
+                          <span className={`text-[8px] font-bold uppercase tracking-widest ${hosp.status === 'High Load' ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'} px-1.5 py-0.5 rounded`}>{hosp.status}</span>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Apollo Trauma Center */}
-                <div className="bg-[#111827] rounded-xl border border-blue-500/20 overflow-hidden">
-                  <div className="flex items-center justify-between px-5 py-3 bg-blue-500/10 border-b border-blue-500/10">
-                    <div className="flex items-center gap-2">
-                      <HeartPulse size={16} className="text-blue-400" />
-                      <h4 className="font-black text-sm">Apollo Trauma Center</h4>
-                    </div>
-                    <span className="text-[9px] font-bold uppercase tracking-widest bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Trauma I</span>
-                  </div>
-                  <div className="p-4 grid grid-cols-2 gap-3">
-                    {[
-                      { label: 'ICU Beds', available: 12, total: 30, color: 'text-emerald-400', barColor: 'bg-emerald-500', pct: 40 },
-                      { label: 'Ventilators', available: 8, total: 20, color: 'text-emerald-400', barColor: 'bg-emerald-500', pct: 40 },
-                      { label: 'Blood Bank', available: 38, total: 60, color: 'text-amber-400', barColor: 'bg-amber-500', pct: 37 },
-                      { label: 'Operating Rooms', available: 4, total: 10, color: 'text-emerald-400', barColor: 'bg-emerald-500', pct: 60 },
-                      { label: 'Ambulance Fleet', available: 7, total: 12, color: 'text-emerald-400', barColor: 'bg-emerald-500', pct: 42 },
-                      { label: 'Staff On Duty', available: 56, total: 70, color: 'text-emerald-400', barColor: 'bg-emerald-500', pct: 80 },
-                    ].map((res, i) => (
-                      <div key={i} className="bg-white/[0.03] rounded-lg px-3 py-2.5 border border-white/5">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{res.label}</span>
-                          <span className={`text-xs font-black ${res.color}`}>{res.available}<span className="text-gray-600">/{res.total}</span></span>
-                        </div>
-                        <div className="w-full bg-black/40 rounded-full h-1.5">
-                          <div className={`${res.barColor} h-1.5 rounded-full transition-all`} style={{ width: `${res.pct}%` }} />
-                        </div>
+                      <div className="px-4 py-3 flex flex-col gap-2">
+                        {hosp.resources.map((res, ri) => {
+                          const usedPct = Math.round(((res.total - res.avail) / res.total) * 100);
+                          const barColor = usedPct > 75 ? 'bg-red-500' : usedPct > 50 ? 'bg-amber-500' : 'bg-emerald-500';
+                          const numColor = usedPct > 75 ? 'text-red-400' : usedPct > 50 ? 'text-amber-400' : 'text-emerald-400';
+                          return (
+                            <div key={ri} className="flex items-center gap-3">
+                              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider w-32 shrink-0 truncate">{res.label}</span>
+                              <div className="flex-1 bg-black/30 rounded-full h-1.5">
+                                <div className={`${barColor} h-1.5 rounded-full transition-all`} style={{ width: `${usedPct}%` }} />
+                              </div>
+                              <span className={`text-[11px] font-black ${numColor} w-12 text-right shrink-0`}>{res.avail}<span className="text-gray-600">/{res.total}</span></span>
+                            </div>
+                          );
+                        })}
                       </div>
-                    ))}
-                  </div>
-                </div>
-
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
