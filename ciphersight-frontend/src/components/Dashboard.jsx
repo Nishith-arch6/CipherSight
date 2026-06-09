@@ -176,7 +176,7 @@ tr:nth-child(even){background:#f8fafc}
   if (activeTab === 'Home' || activeTab === 'Dashboard') return null;
 
   return (
-    <div className="absolute inset-0 z-2000 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 md:p-6">
+    <div className="absolute inset-0 z-2000 bg-black/80 backdrop-blur-md flex items-center justify-center pt-8 pb-3 px-3 md:pt-10 md:pb-6 md:px-6">
       <div className={`w-full ${activeTab === 'Analytics' || activeTab === 'Reports' ? 'max-w-6xl' : 'max-w-4xl'} bg-[#0a0f1c] border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative max-h-[92vh] flex flex-col animate-in fade-in zoom-in duration-200 transition-all`}>
         
         <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
