@@ -99,9 +99,9 @@ def cctv_feed():
             from ultralytics import YOLO  # type: ignore
             model = YOLO('yolov8n.pt')   # downloads automatically on first run
             has_yolo = True
-            print("✅ YOLOv8n (pretrained) loaded — vehicle detection active")
+            print("[SUCCESS] YOLOv8n (pretrained) loaded — vehicle detection active")
         except Exception as e:
-            print(f"❌ YOLO load failed: {e}")
+            print(f"[ERROR] YOLO load failed: {e}")
             has_yolo = False
 
         frame_count  = 0
@@ -354,4 +354,4 @@ if __name__ == '__main__':
             db.session.add(Operator(badge='ADMIN-X', passkey='root_cipher_zero', role='Admin'))
             db.session.add(AnalyticsLog(time_label="10:00", response_time=4.5, congestion=30))
             db.session.commit()
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)

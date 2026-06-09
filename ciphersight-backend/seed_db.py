@@ -5,7 +5,7 @@ from app import app, db, Operator, AnalyticsLog
 with app.app_context():
     # 1. Create all the tables based on your models in app.py
     db.create_all()
-    print("✅ Database tables created.")
+    print("[SUCCESS] Database tables created.")
 
     # 2. Seed the Operator Credentials (if they don't exist yet)
     if not Operator.query.filter_by(badge='ADMIN-X').first():
@@ -16,7 +16,7 @@ with app.app_context():
         db.session.add(admin)
         db.session.add(cmd)
         db.session.add(op)
-        print("✅ Operator credentials seeded.")
+        print("[SUCCESS] Operator credentials seeded.")
 
     # 3. Seed the Historical Analytics Data
     if AnalyticsLog.query.count() == 0:
@@ -32,8 +32,8 @@ with app.app_context():
             AnalyticsLog(time_label="23:00", response_time=7.2, congestion=20)
         ]
         db.session.bulk_save_objects(seed_data)
-        print("✅ Historical analytics seeded.")
+        print("[SUCCESS] Historical analytics seeded.")
 
     # Save all changes to the database
     db.session.commit()
-    print("🚀 Database is locked and loaded!")
+    print("[SUCCESS] Database is locked and loaded!")
