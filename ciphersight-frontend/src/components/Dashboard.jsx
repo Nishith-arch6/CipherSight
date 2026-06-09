@@ -442,7 +442,7 @@ tr:nth-child(even){background:#f8fafc}
 
 export default function Dashboard({ onBack }) {
   // 📱 NEW: State for Mobile Sidebar
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
   
   const [activeTab, setActiveTab] = useState('Dashboard');
   const [missionStatus, setMissionStatus] = useState("IDLE");
@@ -609,14 +609,14 @@ const simulateRogueDetection = () => {
       {/* 🚀 MAIN CONTENT WRAPPER */}
       <div className="flex flex-1 overflow-hidden relative">
         
-        {/* LEFT SIDEBAR (Inline on desktop, overlay on mobile) */}
-        <div className={`fixed inset-y-0 left-0 w-65 bg-[#0c1322] border-r border-white/5 flex flex-col shadow-2xl z-3000 transform sidebar-transition lg:relative lg:z-auto ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:-ml-65'}`}>
+        {/* LEFT SIDEBAR (Overlay on all screens) */}
+        <div className={`fixed inset-y-0 left-0 w-65 bg-[#0c1322] border-r border-white/5 flex flex-col shadow-2xl z-3000 transform sidebar-transition ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="flex items-center justify-between p-6 border-b border-white/5">
             <div className="flex items-center gap-3">
               <Siren className="w-6 h-6 text-blue-400" />
               <h1 className="font-black text-xl tracking-tight text-white uppercase">Cipher<span className="text-blue-500">Sight</span></h1>
             </div>
-            <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-gray-400 hover:text-white cursor-pointer hover:bg-white/5 p-1.5 rounded-lg transition-all"><X size={20}/></button>
+            <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-white cursor-pointer hover:bg-white/5 p-1.5 rounded-lg transition-all"><X size={20}/></button>
           </div>
 
           <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-8">
@@ -644,9 +644,9 @@ const simulateRogueDetection = () => {
           </div>
         </div>
 
-        {/* Mobile overlay backdrop only */}
+        {/* Overlay backdrop (all screens) */}
         {isSidebarOpen && (
-          <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 bg-black/60 z-2005 lg:hidden" />
+          <div onClick={() => setSidebarOpen(false)} className="fixed inset-0 bg-black/60 z-2005" />
         )}
 
         {/* CENTER MAP AREA */}
