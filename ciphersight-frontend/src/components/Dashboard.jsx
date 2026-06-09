@@ -176,8 +176,8 @@ tr:nth-child(even){background:#f8fafc}
   if (activeTab === 'Home' || activeTab === 'Dashboard') return null;
 
   return (
-    <div className="absolute inset-0 z-2000 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 md:p-8">
-      <div className={`w-full ${activeTab === 'Analytics' || activeTab === 'Reports' ? 'max-w-6xl' : 'max-w-4xl'} bg-[#0a0f1c] border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative min-h-125 flex flex-col animate-in fade-in zoom-in duration-200 transition-all`}>
+    <div className="absolute inset-0 z-2000 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 md:p-6">
+      <div className={`w-full ${activeTab === 'Analytics' || activeTab === 'Reports' ? 'max-w-6xl' : 'max-w-4xl'} bg-[#0a0f1c] border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative max-h-[92vh] flex flex-col animate-in fade-in zoom-in duration-200 transition-all`}>
         
         <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
           <div className="flex items-center gap-3">
@@ -187,13 +187,13 @@ tr:nth-child(even){background:#f8fafc}
           <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-all text-gray-400 hover:text-white cursor-pointer"><X size={20}/></button>
         </div>
 
-        <div className="p-8 flex-1 overflow-y-auto text-white">
+        <div className="p-5 flex-1 overflow-y-auto text-white">
           {activeTab === 'Reports' && (
             <div>
               {/* DISPATCH LOGS */}
-              <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-3">Recent Dispatch Logs</h3>
-              <div className="w-full border border-white/10 rounded-xl overflow-hidden text-sm mb-8">
-                <div className="grid grid-cols-5 bg-white/5 px-4 py-2.5 font-bold text-gray-500 uppercase text-[9px] tracking-widest">
+              <h3 className="text-[11px] font-black uppercase tracking-widest text-gray-500 mb-2">Recent Dispatch Logs</h3>
+              <div className="w-full border border-white/10 rounded-lg overflow-hidden text-sm mb-4">
+                <div className="grid grid-cols-5 bg-white/5 px-3 py-1.5 font-bold text-gray-500 uppercase text-[8px] tracking-widest">
                   <div>Unit</div><div>Time</div><div>Destination</div><div>Response</div><div>Status</div>
                 </div>
                 {[
@@ -203,7 +203,7 @@ tr:nth-child(even){background:#f8fafc}
                   { unit: 'Delta-07', time: '07:48:22', dest: 'Apollo Trauma', resp: '5m 30s', status: 'Completed', color: 'text-emerald-400' },
                   { unit: 'Echo-15', time: '03:15:09', dest: 'City Central', resp: '14m 18s', status: 'Delayed', color: 'text-amber-400' },
                 ].map((log, i) => (
-                  <div key={i} className="grid grid-cols-5 px-4 py-2.5 border-t border-white/5 text-xs hover:bg-white/[0.02] transition-colors">
+                  <div key={i} className="grid grid-cols-5 px-3 py-1.5 border-t border-white/5 text-[11px] hover:bg-white/[0.02] transition-colors">
                     <div className="text-blue-400 font-bold">{log.unit}</div>
                     <div className="text-gray-400 font-mono">{log.time}</div>
                     <div>{log.dest}</div>
@@ -213,9 +213,8 @@ tr:nth-child(even){background:#f8fafc}
                 ))}
               </div>
 
-              {/* HOSPITAL RESOURCE AVAILABILITY */}
-              <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-3">Hospital Resource Availability</h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              <h3 className="text-[11px] font-black uppercase tracking-widest text-gray-500 mb-2">Hospital Resource Availability</h3>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
                 {[
                   {
                     name: 'City Central Hospital', type: 'Trauma II', icon: 'building',
@@ -273,29 +272,29 @@ tr:nth-child(even){background:#f8fafc}
                     purple: { border: 'border-purple-500/20', headerBg: 'bg-purple-500/10', text: 'text-purple-400', badge: 'bg-purple-500/20 text-purple-400' },
                   }[hosp.accent];
                   return (
-                    <div key={hi} className={`bg-[#111827] rounded-xl ${colors.border} border overflow-hidden`}>
-                      <div className={`flex items-center justify-between px-4 py-2.5 ${colors.headerBg} border-b ${colors.border}`}>
-                        <div className="flex items-center gap-2">
-                          {hosp.icon === 'building' ? <Building2 size={14} className={colors.text} /> : <HeartPulse size={14} className={colors.text} />}
-                          <h4 className="font-black text-xs">{hosp.name}</h4>
+                    <div key={hi} className={`bg-[#111827] rounded-lg ${colors.border} border overflow-hidden`}>
+                      <div className={`flex items-center justify-between px-3 py-2 ${colors.headerBg} border-b ${colors.border}`}>
+                        <div className="flex items-center gap-1.5">
+                          {hosp.icon === 'building' ? <Building2 size={12} className={colors.text} /> : <HeartPulse size={12} className={colors.text} />}
+                          <h4 className="font-black text-[11px]">{hosp.name}</h4>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-[8px] font-bold uppercase tracking-widest ${colors.badge} px-1.5 py-0.5 rounded`}>{hosp.type}</span>
-                          <span className={`text-[8px] font-bold uppercase tracking-widest ${hosp.status === 'High Load' ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'} px-1.5 py-0.5 rounded`}>{hosp.status}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className={`text-[7px] font-bold uppercase tracking-widest ${colors.badge} px-1.5 py-0.5 rounded`}>{hosp.type}</span>
+                          <span className={`text-[7px] font-bold uppercase tracking-widest ${hosp.status === 'High Load' ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'} px-1.5 py-0.5 rounded`}>{hosp.status}</span>
                         </div>
                       </div>
-                      <div className="px-4 py-3 flex flex-col gap-2">
+                      <div className="px-3 py-2 flex flex-col gap-1.5">
                         {hosp.resources.map((res, ri) => {
                           const usedPct = Math.round(((res.total - res.avail) / res.total) * 100);
                           const barColor = usedPct > 75 ? 'bg-red-500' : usedPct > 50 ? 'bg-amber-500' : 'bg-emerald-500';
                           const numColor = usedPct > 75 ? 'text-red-400' : usedPct > 50 ? 'text-amber-400' : 'text-emerald-400';
                           return (
-                            <div key={ri} className="flex items-center gap-3">
-                              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider w-32 shrink-0 truncate">{res.label}</span>
-                              <div className="flex-1 bg-black/30 rounded-full h-1.5">
-                                <div className={`${barColor} h-1.5 rounded-full transition-all`} style={{ width: `${usedPct}%` }} />
+                            <div key={ri} className="flex items-center gap-2">
+                              <span className="text-[9px] text-gray-500 font-bold uppercase tracking-wider w-28 shrink-0 truncate">{res.label}</span>
+                              <div className="flex-1 bg-black/30 rounded-full h-1">
+                                <div className={`${barColor} h-1 rounded-full transition-all`} style={{ width: `${usedPct}%` }} />
                               </div>
-                              <span className={`text-[11px] font-black ${numColor} w-12 text-right shrink-0`}>{res.avail}<span className="text-gray-600">/{res.total}</span></span>
+                              <span className={`text-[10px] font-black ${numColor} w-11 text-right shrink-0`}>{res.avail}<span className="text-gray-600">/{res.total}</span></span>
                             </div>
                           );
                         })}
