@@ -177,7 +177,7 @@ tr:nth-child(even){background:#f8fafc}
 
   return (
     <div className="absolute inset-0 z-2000 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 md:p-8">
-      <div className={`w-full ${activeTab === 'Analytics' ? 'max-w-6xl' : 'max-w-4xl'} bg-[#0a0f1c] border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative min-h-125 flex flex-col animate-in fade-in zoom-in duration-200 transition-all`}>
+      <div className={`w-full ${activeTab === 'Analytics' || activeTab === 'Reports' ? 'max-w-6xl' : 'max-w-4xl'} bg-[#0a0f1c] border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative min-h-125 flex flex-col animate-in fade-in zoom-in duration-200 transition-all`}>
         
         <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
           <div className="flex items-center gap-3">
@@ -190,20 +190,95 @@ tr:nth-child(even){background:#f8fafc}
         <div className="p-8 flex-1 overflow-y-auto text-white">
           {activeTab === 'Reports' && (
             <div>
-              <h3 className="text-lg font-bold mb-4">Recent Dispatch Logs</h3>
-              <div className="w-full border border-white/10 rounded-xl overflow-hidden text-sm">
-                <div className="grid grid-cols-4 bg-white/5 p-3 font-bold text-gray-400 uppercase text-[10px] tracking-widest">
-                  <div>Unit</div><div>Time</div><div>Destination</div><div>Status</div>
+              {/* DISPATCH LOGS */}
+              <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-3">Recent Dispatch Logs</h3>
+              <div className="w-full border border-white/10 rounded-xl overflow-hidden text-sm mb-8">
+                <div className="grid grid-cols-5 bg-white/5 px-4 py-2.5 font-bold text-gray-500 uppercase text-[9px] tracking-widest">
+                  <div>Unit</div><div>Time</div><div>Destination</div><div>Response</div><div>Status</div>
                 </div>
-                <div className="grid grid-cols-4 p-3 border-t border-white/5">
-                  <div className="text-blue-400">Sentinel-04</div><div>14:32:01</div><div>Apollo Trauma</div><div className="text-emerald-400">Completed</div>
+                {[
+                  { unit: 'Sentinel-04', time: '14:32:01', dest: 'Apollo Trauma', resp: '6m 12s', status: 'Completed', color: 'text-emerald-400' },
+                  { unit: 'Alpha-12', time: '11:05:44', dest: 'City Central', resp: '8m 45s', status: 'Completed', color: 'text-emerald-400' },
+                  { unit: 'Bravo-09', time: '09:12:10', dest: 'General Med', resp: '12m 03s', status: 'Archived', color: 'text-gray-500' },
+                  { unit: 'Delta-07', time: '07:48:22', dest: 'Apollo Trauma', resp: '5m 30s', status: 'Completed', color: 'text-emerald-400' },
+                  { unit: 'Echo-15', time: '03:15:09', dest: 'City Central', resp: '14m 18s', status: 'Delayed', color: 'text-amber-400' },
+                ].map((log, i) => (
+                  <div key={i} className="grid grid-cols-5 px-4 py-2.5 border-t border-white/5 text-xs hover:bg-white/[0.02] transition-colors">
+                    <div className="text-blue-400 font-bold">{log.unit}</div>
+                    <div className="text-gray-400 font-mono">{log.time}</div>
+                    <div>{log.dest}</div>
+                    <div className="text-gray-300">{log.resp}</div>
+                    <div className={`font-bold ${log.color}`}>{log.status}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* HOSPITAL RESOURCE AVAILABILITY */}
+              <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-3">Hospital Resource Availability</h3>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+                {/* City Central Hospital */}
+                <div className="bg-[#111827] rounded-xl border border-emerald-500/20 overflow-hidden">
+                  <div className="flex items-center justify-between px-5 py-3 bg-emerald-500/10 border-b border-emerald-500/10">
+                    <div className="flex items-center gap-2">
+                      <Building2 size={16} className="text-emerald-400" />
+                      <h4 className="font-black text-sm">City Central Hospital</h4>
+                    </div>
+                    <span className="text-[9px] font-bold uppercase tracking-widest bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded">Trauma II</span>
+                  </div>
+                  <div className="p-4 grid grid-cols-2 gap-3">
+                    {[
+                      { label: 'ICU Beds', available: 3, total: 20, color: 'text-red-400', barColor: 'bg-red-500', pct: 85 },
+                      { label: 'Ventilators', available: 5, total: 15, color: 'text-amber-400', barColor: 'bg-amber-500', pct: 67 },
+                      { label: 'Blood Bank', available: 42, total: 50, color: 'text-emerald-400', barColor: 'bg-emerald-500', pct: 16 },
+                      { label: 'Operating Rooms', available: 1, total: 6, color: 'text-red-400', barColor: 'bg-red-500', pct: 83 },
+                      { label: 'Ambulance Fleet', available: 4, total: 8, color: 'text-amber-400', barColor: 'bg-amber-500', pct: 50 },
+                      { label: 'Staff On Duty', available: 34, total: 45, color: 'text-emerald-400', barColor: 'bg-emerald-500', pct: 76 },
+                    ].map((res, i) => (
+                      <div key={i} className="bg-white/[0.03] rounded-lg px-3 py-2.5 border border-white/5">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{res.label}</span>
+                          <span className={`text-xs font-black ${res.color}`}>{res.available}<span className="text-gray-600">/{res.total}</span></span>
+                        </div>
+                        <div className="w-full bg-black/40 rounded-full h-1.5">
+                          <div className={`${res.barColor} h-1.5 rounded-full transition-all`} style={{ width: `${res.pct}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="grid grid-cols-4 p-3 border-t border-white/5">
-                  <div className="text-blue-400">Alpha-12</div><div>11:05:44</div><div>City Central</div><div className="text-emerald-400">Completed</div>
+
+                {/* Apollo Trauma Center */}
+                <div className="bg-[#111827] rounded-xl border border-blue-500/20 overflow-hidden">
+                  <div className="flex items-center justify-between px-5 py-3 bg-blue-500/10 border-b border-blue-500/10">
+                    <div className="flex items-center gap-2">
+                      <HeartPulse size={16} className="text-blue-400" />
+                      <h4 className="font-black text-sm">Apollo Trauma Center</h4>
+                    </div>
+                    <span className="text-[9px] font-bold uppercase tracking-widest bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Trauma I</span>
+                  </div>
+                  <div className="p-4 grid grid-cols-2 gap-3">
+                    {[
+                      { label: 'ICU Beds', available: 12, total: 30, color: 'text-emerald-400', barColor: 'bg-emerald-500', pct: 40 },
+                      { label: 'Ventilators', available: 8, total: 20, color: 'text-emerald-400', barColor: 'bg-emerald-500', pct: 40 },
+                      { label: 'Blood Bank', available: 38, total: 60, color: 'text-amber-400', barColor: 'bg-amber-500', pct: 37 },
+                      { label: 'Operating Rooms', available: 4, total: 10, color: 'text-emerald-400', barColor: 'bg-emerald-500', pct: 60 },
+                      { label: 'Ambulance Fleet', available: 7, total: 12, color: 'text-emerald-400', barColor: 'bg-emerald-500', pct: 42 },
+                      { label: 'Staff On Duty', available: 56, total: 70, color: 'text-emerald-400', barColor: 'bg-emerald-500', pct: 80 },
+                    ].map((res, i) => (
+                      <div key={i} className="bg-white/[0.03] rounded-lg px-3 py-2.5 border border-white/5">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{res.label}</span>
+                          <span className={`text-xs font-black ${res.color}`}>{res.available}<span className="text-gray-600">/{res.total}</span></span>
+                        </div>
+                        <div className="w-full bg-black/40 rounded-full h-1.5">
+                          <div className={`${res.barColor} h-1.5 rounded-full transition-all`} style={{ width: `${res.pct}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="grid grid-cols-4 p-3 border-t border-white/5">
-                  <div className="text-blue-400">Bravo-09</div><div>09:12:10</div><div>General Med</div><div className="text-gray-500">Archived</div>
-                </div>
+
               </div>
             </div>
           )}
