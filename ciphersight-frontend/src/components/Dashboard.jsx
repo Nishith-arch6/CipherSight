@@ -189,7 +189,7 @@ tr:nth-child(even){background:#f8fafc}
 
         <div className="p-5 flex-1 overflow-y-auto text-white">
           {activeTab === 'Reports' && (
-            <div>
+            <div className="pb-4">
               {/* DISPATCH LOGS */}
               <h3 className="text-[11px] font-black uppercase tracking-widest text-gray-500 mb-2">Recent Dispatch Logs</h3>
               <div className="w-full border border-white/10 rounded-lg overflow-hidden text-sm mb-4">
