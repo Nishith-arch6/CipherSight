@@ -560,9 +560,7 @@ export default function Dashboard({ onBack }) {
           const timeLabel = `${step * 2}m`;
           const etaVal = Math.max(1, 5 - step);
           const newData = [...prev, { time: timeLabel, eta: etaVal }];
-          const uniqueData = Array.from(new Map(newData.map(item => [item.time, item])).values());
-          if (uniqueData.length > 6) uniqueData.shift();
-          return uniqueData;
+          return Array.from(new Map(newData.map(item => [item.time, item])).values());
         });
       }, 1500);
     } else if (type === 'transport') {
@@ -585,9 +583,7 @@ export default function Dashboard({ onBack }) {
           const timeLabel = `${10 + step * 2}m`;
           const etaVal = Math.max(0, route.length - step);
           const newData = [...prev, { time: timeLabel, eta: etaVal }];
-          const uniqueData = Array.from(new Map(newData.map(item => [item.time, item])).values());
-          if (uniqueData.length > 6) uniqueData.shift();
-          return uniqueData;
+          return Array.from(new Map(newData.map(item => [item.time, item])).values());
         });
       }, 1500);
     }
@@ -628,9 +624,7 @@ export default function Dashboard({ onBack }) {
       if(data.eta && data.time_elapsed) {
         setChartData(prevData => {
           const newData = [...prevData, { time: data.time_elapsed, eta: data.eta }];
-          const uniqueData = Array.from(new Map(newData.map(item => [item.time, item])).values());
-          if (uniqueData.length > 6) uniqueData.shift(); 
-          return uniqueData;
+          return Array.from(new Map(newData.map(item => [item.time, item])).values());
         });
       }
     });
