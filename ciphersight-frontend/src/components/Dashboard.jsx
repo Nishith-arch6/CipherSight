@@ -858,7 +858,6 @@ const simulateRogueDetection = () => {
           <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-8">
             <div>
               <nav className="flex flex-col gap-1">
-                <button onClick={() => handleNavClick('Home')} className={`flex items-center gap-3 w-full p-3 rounded-lg transition-all font-bold ${activeTab === 'Home' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-gray-400 hover:bg-white/5'} cursor-pointer`}><LayoutDashboard size={18}/> Home</button>
                 <button onClick={() => handleNavClick('Dashboard')} className={`flex items-center gap-3 w-full p-3 rounded-lg transition-all font-bold ${activeTab === 'Dashboard' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-gray-400 hover:bg-white/5'} cursor-pointer`}><MapIcon size={18}/> Dashboard</button>
                 <button onClick={() => handleNavClick('Analytics')} className={`flex items-center gap-3 w-full p-3 rounded-lg transition-all font-bold ${activeTab === 'Analytics' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-gray-400 hover:bg-white/5'} cursor-pointer`}><Activity size={18}/> Analytics</button>
                 <button onClick={() => handleNavClick('Reports')} className={`flex items-center gap-3 w-full p-3 rounded-lg transition-all font-bold ${activeTab === 'Reports' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-gray-400 hover:bg-white/5'} cursor-pointer`}><FileText size={18}/> Reports</button>
