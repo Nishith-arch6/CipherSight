@@ -1,22 +1,70 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function AdminDashboard({ onLogout }) {
     const [activeTab, setActiveTab] = useState('registry');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
 
     // --- STATE: OPERATOR REGISTRY ---
-    const [operators, setOperators] = useState([
-        { badge: 'ADMIN-X', role: 'System Administrator', status: 'ACTIVE', lastActive: 'Just now' },
-        { badge: 'CMD-001', role: 'Dispatch Commander', status: 'ACTIVE', lastActive: '12 mins ago' },
-        { badge: 'CMD-042', role: 'Dispatch Commander', status: 'OFFLINE', lastActive: '2 hrs ago' },
-        { badge: 'OP-108', role: 'Grid Operator', status: 'ACTIVE', lastActive: '45 mins ago' },
-        { badge: 'EM-911', role: 'Emergency Response Unit', status: 'OFFLINE', lastActive: 'Yesterday' }
-    ]);
+    const [operators, setOperators] = useState([]);
 
-    const handleRevoke = (targetBadge) => {
+    const fetchOperators = async () => {
+        try {
+            const res = await fetch(`http://${window.location.hostname}:5000/api/operators`);
+            if (res.ok) {
+                const data = await res.json();
+                setOperators(data);
+            } else {
+                throw new Error("Backend failed");
+            }
+        } catch (err) {
+            // Offline fallback
+            // Fetch mock operators from localStorage and combine with static defaults
+            const mockUsers = JSON.parse(localStorage.getItem('mock_operators') || '{}');
+            const defaultOps = [
+                { badge: 'ADMIN-X', role: 'System Administrator', status: 'ACTIVE', lastActive: 'Just now' },
+                { badge: 'CMD-001', role: 'Dispatch Commander', status: 'ACTIVE', lastActive: '12 mins ago' },
+                { badge: 'OP-108', role: 'Grid Operator', status: 'ACTIVE', lastActive: '45 mins ago' }
+            ];
+            
+            // Add any local mocked operators
+            Object.keys(mockUsers).forEach(badge => {
+                if (!defaultOps.some(o => o.badge === badge)) {
+                    defaultOps.push({
+                        badge,
+                        role: 'Operator',
+                        status: 'ACTIVE',
+                        lastActive: 'Just now'
+                    });
+                }
+            });
+            setOperators(defaultOps);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === 'registry') {
+            fetchOperators();
+        }
+    }, [activeTab]);
+
+    const handleRevoke = async (targetBadge) => {
         if (targetBadge.includes('ADMIN')) return;
-        setOperators(prev => prev.map(op => op.badge === targetBadge ? { ...op, status: 'REVOKED' } : op));
+        try {
+            const res = await fetch(`http://${window.location.hostname}:5000/api/operators/revoke`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ badge: targetBadge })
+            });
+            if (res.ok) {
+                setOperators(prev => prev.map(op => op.badge === targetBadge ? { ...op, status: 'REVOKED' } : op));
+            } else {
+                throw new Error("Revoke failed");
+            }
+        } catch (err) {
+            // Offline fallback
+            setOperators(prev => prev.map(op => op.badge === targetBadge ? { ...op, status: 'REVOKED' } : op));
+        }
     };
 
     // --- STATE: GLOBAL INFRASTRUCTURE ---

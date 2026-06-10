@@ -65,6 +65,34 @@ def login():
         return jsonify({'token': token, 'role': user.role})
     return jsonify({'error': 'Unauthorized'}), 401
 
+@app.route('/api/operators', methods=['GET'])
+def get_operators():
+    try:
+        operators = Operator.query.all()
+        return jsonify([{
+            'badge': op.badge,
+            'role': op.role,
+            'status': op.status,
+            'lastActive': 'Just now' if op.status == 'ACTIVE' else 'Offline'
+        } for op in operators]), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/operators/revoke', methods=['POST'])
+def revoke_operator():
+    data = request.json
+    badge = data.get('badge')
+    if not badge:
+        return jsonify({'error': 'Missing Badge ID'}), 400
+    if 'ADMIN' in badge:
+        return jsonify({'error': 'Cannot revoke Administrator access'}), 400
+    user = Operator.query.filter_by(badge=badge).first()
+    if user:
+        user.status = 'REVOKED'
+        db.session.commit()
+        return jsonify({'message': f'Operator {badge} revoked successfully'}), 200
+    return jsonify({'error': 'Operator not found'}), 404
+
 # ==========================================
 # 📊 ANALYTICS & INFRASTRUCTURE
 # ==========================================
