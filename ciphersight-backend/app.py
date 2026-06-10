@@ -345,7 +345,8 @@ def handle_dispatch():
                 'location': pos,
                 'status': 'AT_PATIENT' if is_last else 'RESPONDING',
                 'speed': 0 if is_last else random.randint(15, 40),
-                'eta': max(1, len(route) - i)
+                'eta': max(1, len(route) - i),
+                'time_elapsed': f"{i * 2}m"
             })
             time.sleep(1.5)
     threading.Thread(target=simulate_mission).start()
@@ -393,7 +394,8 @@ def handle_transport(data):
                 'status': 'ARRIVED' if is_last else 'TRANSPORTING',
                 'speed': 0 if is_last else random.randint(15, 40),
                 'eta': max(0, len(route) - i),
-                'preempted': i * 2
+                'preempted': i * 2,
+                'time_elapsed': f"{10 + i * 2}m"
             })
             time.sleep(1.5)
     threading.Thread(target=simulate_transport).start()
@@ -405,7 +407,8 @@ def handle_reset():
         'status': 'IDLE',
         'speed': 0,
         'eta': 0,
-        'preempted': 0
+        'preempted': 0,
+        'time_elapsed': '0m'
     })
 
 if __name__ == '__main__':

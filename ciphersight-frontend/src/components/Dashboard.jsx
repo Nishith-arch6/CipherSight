@@ -621,7 +621,7 @@ export default function Dashboard({ onBack }) {
       if(data.speed) setLiveSpeed(data.speed);
       if(data.preempted) setLivePreempted(data.preempted);
       
-      if(data.eta && data.time_elapsed) {
+      if(data.eta !== undefined && data.time_elapsed !== undefined) {
         setChartData(prevData => {
           const newData = [...prevData, { time: data.time_elapsed, eta: data.eta }];
           return Array.from(new Map(newData.map(item => [item.time, item])).values());
