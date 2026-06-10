@@ -59,8 +59,23 @@ To make it easy for you to run everything at once, a script is included in the m
 2. Run `python -m venv venv` to create a virtual environment.
 3. Activate it: `venv\Scripts\activate`
 4. Install dependencies: `pip install -r requirements.txt`
-5. Initialize the database: `python seed_db.py` (This will create `instance/ciphersight.db` automatically using SQLite).
-6. Start the backend: `python app.py`
+5. **Configure Database (SQLite or MySQL):**
+   * **To use SQLite:** Keep the default SQLite configuration (it automatically generates a local DB file).
+   * **To use MySQL (with MySQL Workbench):**
+     1. Open MySQL Workbench and create a new schema named `ciphersight` by running:
+        ```sql
+        CREATE DATABASE ciphersight;
+        ```
+     2. Open the `ciphersight-backend/.env` file and verify or update the connection string:
+        ```env
+        LIVE_DATABASE_URL="mysql+pymysql://<user>:<password>@localhost/ciphersight"
+        ```
+        *(Example: `mysql+pymysql://root:password123@localhost/ciphersight`)*
+6. Initialize the database schema & seed credentials:
+   ```bash
+   python seed_db.py
+   ```
+7. Start the backend: `python app.py`
 
 #### **Frontend:**
 1. Open another terminal and go into the `ciphersight-frontend` folder.
