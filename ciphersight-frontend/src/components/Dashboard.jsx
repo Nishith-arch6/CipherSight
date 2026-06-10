@@ -465,19 +465,58 @@ export default function Dashboard({ onBack }) {
   const socketRef = useRef(null);
   const localSimIntervalRef = useRef(null);
 
-  // Map Coordinates & Detailed Street Routes
-  const baseStation = [12.9716, 77.5846];
-  const patientLoc = [12.9650, 77.5900];
-  const hospitalA = [12.9780, 77.5950];
-  const hospitalB = [12.9550, 77.6050];
-  const hospitalC = [12.9620, 77.5750];
-  const hospitalD = [12.9800, 77.5800];
+  // Map Coordinates & Detailed Street Routes (Bangalore roads)
+  const baseStation = [12.9742, 77.5855];   // KG Road / Nrupathunga Rd junction
+  const patientLoc  = [12.9660, 77.5910];   // Near Mission Rd / KR Rd
+  const hospitalA   = [12.9770, 77.5960];   // City Central - near Cubbon Park
+  const hospitalB   = [12.9580, 77.6020];   // Apollo Trauma - Richmond Circle area
+  const hospitalC   = [12.9635, 77.5760];   // General Medical - near SJP Rd / JC Rd
+  const hospitalD   = [12.9810, 77.5810];   // St. Mary's - near Sheshadri Rd
 
-  const routeToPatient = [[12.9716, 77.5846], [12.9680, 77.5846], [12.9680, 77.5880], [12.9650, 77.5880], [12.9650, 77.5900]];
-  const routeToHospA = [[12.9650, 77.5900], [12.9650, 77.5940], [12.9716, 77.5940], [12.9716, 77.5950], [12.9780, 77.5950]];
-  const routeToHospB = [[12.9650, 77.5900], [12.9650, 77.5950], [12.9600, 77.5950], [12.9600, 77.6000], [12.9550, 77.6000], [12.9550, 77.6050]];
-  const routeToHospC = [[12.9650, 77.5900], [12.9650, 77.5850], [12.9630, 77.5850], [12.9630, 77.5780], [12.9620, 77.5780], [12.9620, 77.5750]];
-  const routeToHospD = [[12.9650, 77.5900], [12.9680, 77.5900], [12.9716, 77.5900], [12.9716, 77.5846], [12.9750, 77.5846], [12.9780, 77.5846], [12.9780, 77.5800]];
+  // Base → Patient: KG Rd south → turn east on Kasturba Rd → south to Mission Rd
+  const routeToPatient = [
+    [12.9742, 77.5855], [12.9735, 77.5855], [12.9728, 77.5856], [12.9720, 77.5857],
+    [12.9712, 77.5858], [12.9705, 77.5860], [12.9700, 77.5865], [12.9695, 77.5870],
+    [12.9690, 77.5878], [12.9685, 77.5885], [12.9680, 77.5890], [12.9675, 77.5895],
+    [12.9670, 77.5900], [12.9665, 77.5905], [12.9660, 77.5910],
+  ];
+
+  // Patient → City Central (A): North along Kasturba Rd → east on Cubbon Rd
+  const routeToHospA = [
+    [12.9660, 77.5910], [12.9665, 77.5912], [12.9670, 77.5915], [12.9678, 77.5918],
+    [12.9685, 77.5920], [12.9692, 77.5922], [12.9700, 77.5925], [12.9708, 77.5928],
+    [12.9715, 77.5930], [12.9722, 77.5933], [12.9730, 77.5936], [12.9738, 77.5940],
+    [12.9745, 77.5943], [12.9752, 77.5947], [12.9758, 77.5950], [12.9765, 77.5955],
+    [12.9770, 77.5960],
+  ];
+
+  // Patient → Apollo Trauma (B): South on KR Rd → east on Richmond Rd
+  const routeToHospB = [
+    [12.9660, 77.5910], [12.9655, 77.5915], [12.9650, 77.5920], [12.9645, 77.5925],
+    [12.9640, 77.5930], [12.9635, 77.5935], [12.9630, 77.5940], [12.9625, 77.5948],
+    [12.9620, 77.5955], [12.9615, 77.5962], [12.9610, 77.5970], [12.9605, 77.5978],
+    [12.9600, 77.5985], [12.9595, 77.5992], [12.9590, 77.6000], [12.9585, 77.6010],
+    [12.9580, 77.6020],
+  ];
+
+  // Patient → General Medical (C): West on Mission Rd → south on JC Rd
+  const routeToHospC = [
+    [12.9660, 77.5910], [12.9660, 77.5902], [12.9658, 77.5895], [12.9656, 77.5888],
+    [12.9654, 77.5880], [12.9652, 77.5872], [12.9650, 77.5865], [12.9648, 77.5858],
+    [12.9646, 77.5850], [12.9644, 77.5842], [12.9643, 77.5835], [12.9642, 77.5828],
+    [12.9640, 77.5820], [12.9639, 77.5810], [12.9638, 77.5800], [12.9637, 77.5790],
+    [12.9636, 77.5780], [12.9635, 77.5770], [12.9635, 77.5760],
+  ];
+
+  // Patient → St. Mary's (D): North via Kasturba Rd → west on Nrupathunga → north on Sheshadri Rd
+  const routeToHospD = [
+    [12.9660, 77.5910], [12.9668, 77.5908], [12.9675, 77.5905], [12.9682, 77.5900],
+    [12.9690, 77.5895], [12.9698, 77.5888], [12.9705, 77.5880], [12.9712, 77.5872],
+    [12.9720, 77.5865], [12.9728, 77.5858], [12.9735, 77.5855], [12.9742, 77.5852],
+    [12.9750, 77.5848], [12.9758, 77.5845], [12.9765, 77.5840], [12.9772, 77.5835],
+    [12.9780, 77.5830], [12.9788, 77.5825], [12.9795, 77.5820], [12.9802, 77.5815],
+    [12.9810, 77.5810],
+  ];
 
   const stopLocalSim = () => {
     if (localSimIntervalRef.current) {
@@ -856,7 +895,7 @@ const simulateRogueDetection = () => {
 
           {/* 🗺️ ACTUAL LEAFLET MAP */}
           <div className="flex-1 w-full relative z-0">
-            <MapContainer center={[12.9650, 77.5950]} zoom={14} style={{ height: '100%', width: '100%', background: '#020617' }} zoomControl={false}>
+            <MapContainer center={[12.9710, 77.5890]} zoom={14} style={{ height: '100%', width: '100%', background: '#f2efe9' }} zoomControl={false}>
               <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" attribution='&copy; <a href="https://carto.com/">CARTO</a>' />
               
               {['IDLE', 'RESPONDING'].includes(missionStatus) && (
