@@ -448,7 +448,7 @@ export default function Dashboard({ onBack }) {
   
   const [activeTab, setActiveTab] = useState('Dashboard');
   const [missionStatus, setMissionStatus] = useState("IDLE");
-  const [ambulanceLoc, setAmbulanceLoc] = useState([12.9716, 77.5846]);
+  const [ambulanceLoc, setAmbulanceLoc] = useState([12.9742, 77.5855]);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [isAutoSimulating, setIsAutoSimulating] = useState(false);
@@ -682,7 +682,7 @@ export default function Dashboard({ onBack }) {
     setIsAutoSimulating(false);
     setIsCameraOpen(false);
     stopLocalSim();
-    setAmbulanceLoc([12.9716, 77.5846]);
+    setAmbulanceLoc([12.9742, 77.5855]);
     setMissionStatus("IDLE");
     setLiveSpeed(0);
     setLivePreempted(0);
@@ -898,8 +898,11 @@ const simulateRogueDetection = () => {
             <MapContainer center={[12.9710, 77.5890]} zoom={14} style={{ height: '100%', width: '100%', background: '#f2efe9' }} zoomControl={false}>
               <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" attribution='&copy; <a href="https://carto.com/">CARTO</a>' />
               
-              {['IDLE', 'RESPONDING'].includes(missionStatus) && (
-                <Polyline positions={routeToPatient} color="#eab308" weight={4} opacity={0.8} dashArray="5, 10" />
+              {missionStatus === 'IDLE' && (
+                <Polyline positions={routeToPatient} color="#eab308" weight={4} opacity={0.5} dashArray="8, 12" />
+              )}
+              {missionStatus === 'RESPONDING' && (
+                <Polyline positions={routeToPatient} color="#eab308" weight={5} opacity={0.9} />
               )}
               
               {missionStatus === 'AT_PATIENT' && (
