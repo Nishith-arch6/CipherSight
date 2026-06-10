@@ -950,6 +950,46 @@ const simulateRogueDetection = () => {
           <div className="flex-1 overflow-y-auto px-6 pb-6 flex flex-col gap-6">
             <CircularProgress label="Speed" value={liveSpeed} max={100} unit="mph" strokeColor="#3b82f6" />
             <CircularProgress label="Preempted" value={livePreempted} max={8} unit="/ 8" strokeColor="#06b6d4" />
+
+            {/* Hospital Resource Summary */}
+            <div className="bg-[#0a0f1c] rounded-2xl border border-white/5 p-4">
+              <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Nearby Hospitals</h3>
+              <div className="flex flex-col gap-2.5">
+                {[
+                  { name: 'City Central', icu: [3,20], vent: [5,15], amb: [4,8], accent: 'emerald', status: 'OK' },
+                  { name: 'Apollo Trauma', icu: [12,30], vent: [8,20], amb: [7,12], accent: 'blue', status: 'OK' },
+                  { name: 'General Medical', icu: [2,12], vent: [3,10], amb: [2,5], accent: 'amber', status: 'LOAD' },
+                  { name: "St. Mary's", icu: [8,15], vent: [6,8], amb: [3,6], accent: 'purple', status: 'OK' },
+                ].map((h, i) => {
+                  const accentMap = { emerald: 'text-emerald-400 border-emerald-500/20 bg-emerald-500/5', blue: 'text-blue-400 border-blue-500/20 bg-blue-500/5', amber: 'text-amber-400 border-amber-500/20 bg-amber-500/5', purple: 'text-purple-400 border-purple-500/20 bg-purple-500/5' };
+                  const cls = accentMap[h.accent];
+                  const icuPct = Math.round(((h.icu[1]-h.icu[0])/h.icu[1])*100);
+                  const icuColor = icuPct > 75 ? 'text-red-400' : icuPct > 50 ? 'text-amber-400' : 'text-emerald-400';
+                  return (
+                    <div key={i} className={`border ${cls.split(' ')[1]} ${cls.split(' ')[2]} rounded-lg p-2.5`}>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <span className={`text-[11px] font-black ${cls.split(' ')[0]}`}>{h.name}</span>
+                        <span className={`text-[7px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded ${h.status === 'LOAD' ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'}`}>{h.status === 'LOAD' ? 'High Load' : 'Online'}</span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        <div className="text-center">
+                          <div className={`text-[13px] font-black ${icuColor}`}>{h.icu[0]}<span className="text-gray-600 text-[10px]">/{h.icu[1]}</span></div>
+                          <div className="text-[7px] text-gray-500 font-bold uppercase tracking-wider">ICU</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-[13px] font-black text-blue-400">{h.vent[0]}<span className="text-gray-600 text-[10px]">/{h.vent[1]}</span></div>
+                          <div className="text-[7px] text-gray-500 font-bold uppercase tracking-wider">Vents</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-[13px] font-black text-cyan-400">{h.amb[0]}<span className="text-gray-600 text-[10px]">/{h.amb[1]}</span></div>
+                          <div className="text-[7px] text-gray-500 font-bold uppercase tracking-wider">Ambu</div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
       </div>
