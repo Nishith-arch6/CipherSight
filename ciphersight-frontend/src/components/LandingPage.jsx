@@ -285,8 +285,6 @@ export default function LandingPage({ onStart }) {
         <header className="absolute top-0 w-full p-6 md:p-8 flex justify-between items-center z-50">
           <div className="font-black text-xl md:text-2xl tracking-tighter flex items-center gap-2">CIPHER <span className="text-[#9D00FF]">SIGHT</span></div>
           <nav className="hidden md:flex gap-8 text-xs font-bold tracking-widest uppercase">
-            <button onClick={() => setShowGrid(true)} className="hover:text-[#9D00FF] transition-colors cursor-pointer">Grid Status</button>
-            <button onClick={() => setShowLogs(true)} className="hover:text-[#9D00FF] transition-colors cursor-pointer">System Logs</button>
             <button onClick={() => setIsAuthOpen(true)} className="text-[#9D00FF] hover:text-white transition-colors cursor-pointer">Operator Login</button>
           </nav>
           <button onClick={() => setIsAuthOpen(true)} className="md:hidden p-2 text-white cursor-pointer"><Menu className="w-6 h-6" /></button>
