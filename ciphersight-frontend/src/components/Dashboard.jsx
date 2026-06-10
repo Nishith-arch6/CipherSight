@@ -336,6 +336,18 @@ tr:nth-child(even){background:#f8fafc}
                 <div className="w-full bg-black rounded-full h-2 mb-1"><div className="bg-blue-500 h-2 rounded-full w-[40%]"></div></div>
                 <p className="text-xs text-right text-gray-500">Beds: 40% Full</p>
               </div>
+              <div className="bg-amber-900/10 border border-amber-500/30 p-6 rounded-2xl">
+                <div className="flex items-center gap-3 mb-4"><Building2 className="text-amber-400"/><h3 className="font-bold text-xl">General Medical</h3></div>
+                <p className="text-sm text-gray-400 mb-2">Trauma Level: III</p>
+                <div className="w-full bg-black rounded-full h-2 mb-1"><div className="bg-amber-500 h-2 rounded-full w-[83%]"></div></div>
+                <p className="text-xs text-right text-gray-500">Beds: 83% Full</p>
+              </div>
+              <div className="bg-purple-900/10 border border-purple-500/30 p-6 rounded-2xl">
+                <div className="flex items-center gap-3 mb-4"><HeartPulse className="text-purple-400"/><h3 className="font-bold text-xl">St. Mary's</h3></div>
+                <p className="text-sm text-gray-400 mb-2">Trauma Level: General</p>
+                <div className="w-full bg-black rounded-full h-2 mb-1"><div className="bg-purple-500 h-2 rounded-full w-[47%]"></div></div>
+                <p className="text-xs text-right text-gray-500">Beds: 47% Full</p>
+              </div>
             </div>
           )}
 
@@ -814,79 +826,79 @@ const simulateRogueDetection = () => {
           {/* Header Strip */}
           <div className="absolute top-0 w-full h-12 bg-linear-to-b from-[#030712] to-transparent z-1000 pointer-events-none" />
 
-          {/* Interactive Mission Control Panel (Responsive) */}
-          <div className="absolute bottom-4 left-4 right-4 lg:bottom-6 lg:left-1/2 lg:transform lg:-translate-x-1/2 z-1000 lg:w-full lg:max-w-md">
-            <div className="bg-[#0c1322]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 lg:p-5 shadow-2xl flex flex-col gap-3">
-              <div className="flex justify-between items-center mb-1">
-                <div className="flex items-center gap-2 text-gray-400 text-[10px] font-bold uppercase tracking-widest">
-                  <span className={`w-2 h-2 rounded-full animate-pulse ${missionStatus !== 'IDLE' && missionStatus !== 'ARRIVED' ? 'bg-red-500' : 'bg-emerald-500'}`} />
+          {/* Interactive Mission Control Panel (Compact, bottom-left) */}
+          <div className="absolute bottom-2 left-2 right-2 lg:bottom-3 lg:left-3 lg:right-auto z-1000 lg:w-full lg:max-w-xs">
+            <div className="bg-[#0c1322]/90 backdrop-blur-xl border border-white/10 rounded-xl p-3 shadow-2xl flex flex-col gap-2">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-1.5 text-gray-400 text-[9px] font-bold uppercase tracking-widest">
+                  <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${missionStatus !== 'IDLE' && missionStatus !== 'ARRIVED' ? 'bg-red-500' : 'bg-emerald-500'}`} />
                   Mission Status
                 </div>
-                <span className="text-[10px] text-blue-400 uppercase tracking-widest font-bold bg-blue-500/10 px-2 py-1 rounded">JWT Verified</span>
+                <span className="text-[8px] text-blue-400 uppercase tracking-widest font-bold bg-blue-500/10 px-1.5 py-0.5 rounded">JWT Verified</span>
               </div>
               
-              <p className="text-xl font-black mb-2 text-white tracking-tight">{missionStatus.replace('_', ' ')}</p>
+              <p className="text-base font-black text-white tracking-tight">{missionStatus.replace('_', ' ')}</p>
 
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1.5">
                 {missionStatus === 'IDLE' && (
-                  <div className="flex flex-col gap-2">
-                    <button onClick={() => triggerDispatchUnit(false)} className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-xs tracking-widest transition-all shadow-[0_0_20px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 cursor-pointer uppercase">
-                      <Play size={16}/> Dispatch Command
+                  <div className="flex flex-col gap-1.5">
+                    <button onClick={() => triggerDispatchUnit(false)} className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-black text-[10px] tracking-widest transition-all shadow-[0_0_15px_rgba(37,99,235,0.3)] flex items-center justify-center gap-2 cursor-pointer uppercase">
+                      <Play size={13}/> Dispatch Command
                     </button>
-                    <button onClick={() => triggerDispatchUnit(true)} className="w-full py-3 bg-[#9D00FF]/20 hover:bg-[#9D00FF]/40 border border-[#9D00FF]/50 text-[#9D00FF] rounded-xl font-black text-xs tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer uppercase">
-                      <Activity size={16}/> Auto-Simulate Scenario
+                    <button onClick={() => triggerDispatchUnit(true)} className="w-full py-2 bg-[#9D00FF]/20 hover:bg-[#9D00FF]/40 border border-[#9D00FF]/50 text-[#9D00FF] rounded-lg font-black text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer uppercase">
+                      <Activity size={13}/> Auto-Simulate
                     </button>
                   </div>
                 )}
 
                 {/* HOSPITAL SELECTION BUTTONS */}
                 {missionStatus === 'AT_PATIENT' && (
-                  <div className="flex flex-col gap-2">
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Select Destination:</p>
+                  <div className="flex flex-col gap-1.5">
+                    <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Select Destination:</p>
                     
-                    <button onClick={() => dispatchToHospital('A')} className="w-full p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-left hover:bg-emerald-500/20 transition-all cursor-pointer">
+                    <button onClick={() => dispatchToHospital('A')} className="w-full p-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-left hover:bg-emerald-500/20 transition-all cursor-pointer">
                       <div className="flex justify-between items-center">
-                        <div className="font-bold text-emerald-400 flex items-center gap-2 text-sm"><Building2 size={14}/> City Central</div>
-                        <span className="text-[8px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Nearer</span>
+                        <div className="font-bold text-emerald-400 flex items-center gap-1.5 text-xs"><Building2 size={12}/> City Central</div>
+                        <span className="text-[7px] bg-emerald-500/20 text-emerald-300 px-1 py-0.5 rounded font-bold uppercase tracking-wider">Nearer</span>
                       </div>
-                      <div className="text-[9px] text-gray-400 mt-0.5">1.2km &bull; ICU: 3/20 &bull; Est: 4 mins</div>
+                      <div className="text-[8px] text-gray-400 mt-0.5">1.2km • ICU: 3/20 • Est: 4 mins</div>
                     </button>
 
-                    <button onClick={() => dispatchToHospital('B')} className="w-full p-2.5 bg-blue-500/10 border border-blue-500/30 rounded-xl text-left hover:bg-blue-500/20 transition-all cursor-pointer">
+                    <button onClick={() => dispatchToHospital('B')} className="w-full p-2 bg-blue-500/10 border border-blue-500/30 rounded-lg text-left hover:bg-blue-500/20 transition-all cursor-pointer">
                       <div className="flex justify-between items-center">
-                        <div className="font-bold text-blue-400 flex items-center gap-2 text-sm"><HeartPulse size={14}/> Apollo Trauma</div>
-                        <span className="text-[8px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Faster</span>
+                        <div className="font-bold text-blue-400 flex items-center gap-1.5 text-xs"><HeartPulse size={12}/> Apollo Trauma</div>
+                        <span className="text-[7px] bg-blue-500/20 text-blue-300 px-1 py-0.5 rounded font-bold uppercase tracking-wider">Faster</span>
                       </div>
-                      <div className="text-[9px] text-gray-400 mt-0.5">2.8km &bull; ICU: 12/30 &bull; Est: 6 mins</div>
+                      <div className="text-[8px] text-gray-400 mt-0.5">2.8km • ICU: 12/30 • Est: 6 mins</div>
                     </button>
 
-                    <button onClick={() => dispatchToHospital('C')} className="w-full p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-left hover:bg-amber-500/20 transition-all cursor-pointer">
+                    <button onClick={() => dispatchToHospital('C')} className="w-full p-2 bg-amber-500/10 border border-amber-500/30 rounded-lg text-left hover:bg-amber-500/20 transition-all cursor-pointer">
                       <div className="flex justify-between items-center">
-                        <div className="font-bold text-amber-400 flex items-center gap-2 text-sm"><Building2 size={14}/> General Medical</div>
-                        <span className="text-[8px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">High Load</span>
+                        <div className="font-bold text-amber-400 flex items-center gap-1.5 text-xs"><Building2 size={12}/> General Medical</div>
+                        <span className="text-[7px] bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded font-bold uppercase tracking-wider">High Load</span>
                       </div>
-                      <div className="text-[9px] text-gray-400 mt-0.5">1.8km &bull; ICU: 2/12 &bull; Est: 5 mins</div>
+                      <div className="text-[8px] text-gray-400 mt-0.5">1.8km • ICU: 2/12 • Est: 5 mins</div>
                     </button>
 
-                    <button onClick={() => dispatchToHospital('D')} className="w-full p-2.5 bg-purple-500/10 border border-purple-500/30 rounded-xl text-left hover:bg-purple-500/20 transition-all cursor-pointer">
+                    <button onClick={() => dispatchToHospital('D')} className="w-full p-2 bg-purple-500/10 border border-purple-500/30 rounded-lg text-left hover:bg-purple-500/20 transition-all cursor-pointer">
                       <div className="flex justify-between items-center">
-                        <div className="font-bold text-purple-400 flex items-center gap-2 text-sm"><HeartPulse size={14}/> St. Mary's</div>
-                        <span className="text-[8px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Available</span>
+                        <div className="font-bold text-purple-400 flex items-center gap-1.5 text-xs"><HeartPulse size={12}/> St. Mary's</div>
+                        <span className="text-[7px] bg-purple-500/20 text-purple-300 px-1 py-0.5 rounded font-bold uppercase tracking-wider">Available</span>
                       </div>
-                      <div className="text-[9px] text-gray-400 mt-0.5">2.1km &bull; ICU: 8/15 &bull; Est: 5 mins</div>
+                      <div className="text-[8px] text-gray-400 mt-0.5">2.1km • ICU: 8/15 • Est: 5 mins</div>
                     </button>
                   </div>
                 )}
 
                 {missionStatus === 'TRANSPORTING' && (
-                  <div className="w-full py-4 bg-purple-600/20 border border-purple-500/30 text-purple-400 rounded-xl font-black text-xs tracking-widest flex items-center justify-center gap-2 uppercase">
-                    <Activity size={16} className="animate-pulse"/> Preempting Intersections...
+                  <div className="w-full py-2.5 bg-purple-600/20 border border-purple-500/30 text-purple-400 rounded-lg font-black text-[10px] tracking-widest flex items-center justify-center gap-2 uppercase">
+                    <Activity size={13} className="animate-pulse"/> Preempting Intersections...
                   </div>
                 )}
 
                 {missionStatus === 'ARRIVED' && (
-                  <button onClick={resetSim} className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-xs tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer uppercase">
-                    <RotateCcw size={16}/> Reset Grid
+                  <button onClick={resetSim} className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-black text-[10px] tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer uppercase">
+                    <RotateCcw size={13}/> Reset Grid
                   </button>
                 )}
               </div>
