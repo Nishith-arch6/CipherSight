@@ -309,15 +309,86 @@ tr:nth-child(even){background:#f8fafc}
           )}
 
           {activeTab === 'Route Setup' && (
-            <div className="flex flex-col gap-4 max-w-md">
-              <h3 className="text-lg font-bold mb-2">Grid Override Settings</h3>
-              <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/10">
-                <div><p className="font-bold">AI Auto-Routing</p><p className="text-xs text-gray-400">YOLOv8 Dynamic Traffic Avoidance</p></div>
-                <div className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded">ENABLED</div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+              {/* Left Column: Grid Settings */}
+              <div className="flex flex-col gap-4">
+                <h3 className="text-lg font-bold mb-1">Grid Override Settings</h3>
+                <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/10">
+                  <div><p className="font-bold">AI Auto-Routing</p><p className="text-xs text-gray-400">YOLOv8 Dynamic Traffic Avoidance</p></div>
+                  <div className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded">ENABLED</div>
+                </div>
+                <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/10">
+                  <div><p className="font-bold">Weather Optimization</p><p className="text-xs text-gray-400">Adjust speed caps for rain/snow</p></div>
+                  <div className="px-3 py-1 bg-gray-500/20 text-gray-400 text-xs font-bold rounded">DISABLED</div>
+                </div>
+                <div className="p-4 bg-white/5 rounded-xl border border-white/10 mt-1">
+                  <h4 className="font-bold text-sm mb-2">Preemption Control Logic</h4>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    When dispatch commands are active, the grid preempts traffic controllers 300 meters ahead of the ambulance. Visual AI feeds check for conflicts while holding cross-streets on red.
+                  </p>
+                </div>
               </div>
-              <div className="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/10">
-                <div><p className="font-bold">Weather Optimization</p><p className="text-xs text-gray-400">Adjust speed caps for rain/snow</p></div>
-                <div className="px-3 py-1 bg-gray-500/20 text-gray-400 text-xs font-bold rounded">DISABLED</div>
+
+              {/* Right Column: Route Details */}
+              <div className="flex flex-col gap-4">
+                <h3 className="text-lg font-bold mb-1">Grid Route Specifications</h3>
+
+                {/* Dispatch Route */}
+                <div className="p-4 bg-white/5 rounded-xl border border-white/10 flex flex-col gap-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold uppercase tracking-widest text-[#9D00FF]">Phase 1: Dispatch Route</span>
+                    <span className="text-[10px] px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full font-bold">1.2 km</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm mt-1">
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
+                      <div className="w-0.5 h-5 border-l border-dashed border-gray-600"></div>
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                    </div>
+                    <div className="flex-1 flex flex-col gap-2">
+                      <div>
+                        <p className="font-bold text-xs leading-none">Base Station (BPM HQ)</p>
+                        <p className="text-[10px] text-gray-500">Lat: 12.9742, Lng: 77.5855</p>
+                      </div>
+                      <div>
+                        <p className="font-bold text-xs leading-none">Patient Location (Richmond Sq)</p>
+                        <p className="text-[10px] text-gray-500">Lat: 12.9660, Lng: 77.5910</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-[10px] text-gray-500 mt-1">Waypoints: 15 active nodes | Est. transit: 2m 30s</div>
+                </div>
+
+                {/* Transport Routes */}
+                <div className="p-4 bg-white/5 rounded-xl border border-white/10 flex flex-col gap-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">Phase 2: Transport Options</span>
+                    <span className="text-[10px] text-gray-500">Selectable destinations</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    <div className="p-2.5 bg-emerald-500/5 border border-emerald-500/20 rounded-lg">
+                      <p className="font-bold text-emerald-400">City Central (A)</p>
+                      <p className="text-gray-500">Distance: 1.8 km</p>
+                      <p className="text-gray-500">Waypoints: 17 nodes</p>
+                    </div>
+                    <div className="p-2.5 bg-blue-500/5 border border-blue-500/20 rounded-lg">
+                      <p className="font-bold text-blue-400">Apollo Trauma (B)</p>
+                      <p className="text-gray-500">Distance: 1.5 km</p>
+                      <p className="text-gray-500">Waypoints: 17 nodes</p>
+                    </div>
+                    <div className="p-2.5 bg-amber-500/5 border border-amber-500/20 rounded-lg">
+                      <p className="font-bold text-amber-400">General Medical (C)</p>
+                      <p className="text-gray-500">Distance: 2.1 km</p>
+                      <p className="text-gray-500">Waypoints: 19 nodes</p>
+                    </div>
+                    <div className="p-2.5 bg-purple-500/5 border border-purple-500/20 rounded-lg">
+                      <p className="font-bold text-purple-400">St. Mary's (D)</p>
+                      <p className="text-gray-500">Distance: 2.3 km</p>
+                      <p className="text-gray-500">Waypoints: 21 nodes</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
