@@ -65,6 +65,8 @@ const baseStationIcon = new L.divIcon({ className: 'custom-b', html: `<div style
 const patientIcon = new L.divIcon({ className: 'custom-p', html: `<div style="background: #f59e0b; width: 25px; height: 25px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px #f59e0b;"></div>` });
 const hospitalIconA = new L.divIcon({ className: 'custom-h-a', html: `<div style="background: #10b981; width: 30px; height: 30px; border-radius: 5px; color: white; display:flex; align-items:center; justify-content:center; font-weight:bold; border: 2px solid white; box-shadow: 0 0 15px #10b981;">H</div>` });
 const hospitalIconB = new L.divIcon({ className: 'custom-h-b', html: `<div style="background: #3b82f6; width: 30px; height: 30px; border-radius: 5px; color: white; display:flex; align-items:center; justify-content:center; font-weight:bold; border: 2px solid white; box-shadow: 0 0 15px #3b82f6;">H</div>` });
+const hospitalIconC = new L.divIcon({ className: 'custom-h-c', html: `<div style="background: #f59e0b; width: 30px; height: 30px; border-radius: 5px; color: white; display:flex; align-items:center; justify-content:center; font-weight:bold; border: 2px solid white; box-shadow: 0 0 15px #f59e0b;">H</div>` });
+const hospitalIconD = new L.divIcon({ className: 'custom-h-d', html: `<div style="background: #a855f7; width: 30px; height: 30px; border-radius: 5px; color: white; display:flex; align-items:center; justify-content:center; font-weight:bold; border: 2px solid white; box-shadow: 0 0 15px #a855f7;">H</div>` });
 
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -468,10 +470,14 @@ export default function Dashboard({ onBack }) {
   const patientLoc = [12.9650, 77.5900];
   const hospitalA = [12.9780, 77.5950];
   const hospitalB = [12.9550, 77.6050];
+  const hospitalC = [12.9620, 77.5750];
+  const hospitalD = [12.9800, 77.5800];
 
   const routeToPatient = [[12.9716, 77.5846], [12.9680, 77.5846], [12.9680, 77.5880], [12.9650, 77.5880], [12.9650, 77.5900]];
   const routeToHospA = [[12.9650, 77.5900], [12.9650, 77.5940], [12.9716, 77.5940], [12.9716, 77.5950], [12.9780, 77.5950]];
   const routeToHospB = [[12.9650, 77.5900], [12.9650, 77.5950], [12.9600, 77.5950], [12.9600, 77.6000], [12.9550, 77.6000], [12.9550, 77.6050]];
+  const routeToHospC = [[12.9650, 77.5900], [12.9650, 77.5850], [12.9630, 77.5850], [12.9630, 77.5780], [12.9620, 77.5780], [12.9620, 77.5750]];
+  const routeToHospD = [[12.9650, 77.5900], [12.9680, 77.5900], [12.9716, 77.5900], [12.9716, 77.5846], [12.9750, 77.5846], [12.9780, 77.5846], [12.9780, 77.5800]];
 
   const stopLocalSim = () => {
     if (localSimIntervalRef.current) {
@@ -510,7 +516,8 @@ export default function Dashboard({ onBack }) {
       }, 1500);
     } else if (type === 'transport') {
       setMissionStatus('TRANSPORTING');
-      const route = hospId === 'A' ? routeToHospA : routeToHospB;
+      const routeMap = { A: routeToHospA, B: routeToHospB, C: routeToHospC, D: routeToHospD };
+      const route = routeMap[hospId] || routeToHospA;
       localSimIntervalRef.current = setInterval(() => {
         step++;
         if (step >= route.length) {
@@ -798,20 +805,36 @@ const simulateRogueDetection = () => {
                   <div className="flex flex-col gap-2">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Select Destination:</p>
                     
-                    <button onClick={() => dispatchToHospital('A')} className="w-full p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-left hover:bg-emerald-500/20 transition-all cursor-pointer">
+                    <button onClick={() => dispatchToHospital('A')} className="w-full p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-left hover:bg-emerald-500/20 transition-all cursor-pointer">
                       <div className="flex justify-between items-center">
-                        <div className="font-bold text-emerald-400 flex items-center gap-2"><Building2 size={16}/> City Central</div>
-                        <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Nearer</span>
+                        <div className="font-bold text-emerald-400 flex items-center gap-2 text-sm"><Building2 size={14}/> City Central</div>
+                        <span className="text-[8px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Nearer</span>
                       </div>
-                      <div className="text-[10px] text-gray-400 mt-1">1.2km &bull; Est: 4 mins via Main St</div>
+                      <div className="text-[9px] text-gray-400 mt-0.5">1.2km &bull; ICU: 3/20 &bull; Est: 4 mins</div>
                     </button>
 
-                    <button onClick={() => dispatchToHospital('B')} className="w-full p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl text-left hover:bg-blue-500/20 transition-all cursor-pointer">
+                    <button onClick={() => dispatchToHospital('B')} className="w-full p-2.5 bg-blue-500/10 border border-blue-500/30 rounded-xl text-left hover:bg-blue-500/20 transition-all cursor-pointer">
                       <div className="flex justify-between items-center">
-                        <div className="font-bold text-blue-400 flex items-center gap-2"><HeartPulse size={16}/> Apollo Trauma</div>
-                        <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Faster</span>
+                        <div className="font-bold text-blue-400 flex items-center gap-2 text-sm"><HeartPulse size={14}/> Apollo Trauma</div>
+                        <span className="text-[8px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Faster</span>
                       </div>
-                      <div className="text-[10px] text-gray-400 mt-1">2.8km &bull; Est: 6 mins (Preemption Active)</div>
+                      <div className="text-[9px] text-gray-400 mt-0.5">2.8km &bull; ICU: 12/30 &bull; Est: 6 mins</div>
+                    </button>
+
+                    <button onClick={() => dispatchToHospital('C')} className="w-full p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-left hover:bg-amber-500/20 transition-all cursor-pointer">
+                      <div className="flex justify-between items-center">
+                        <div className="font-bold text-amber-400 flex items-center gap-2 text-sm"><Building2 size={14}/> General Medical</div>
+                        <span className="text-[8px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">High Load</span>
+                      </div>
+                      <div className="text-[9px] text-gray-400 mt-0.5">1.8km &bull; ICU: 2/12 &bull; Est: 5 mins</div>
+                    </button>
+
+                    <button onClick={() => dispatchToHospital('D')} className="w-full p-2.5 bg-purple-500/10 border border-purple-500/30 rounded-xl text-left hover:bg-purple-500/20 transition-all cursor-pointer">
+                      <div className="flex justify-between items-center">
+                        <div className="font-bold text-purple-400 flex items-center gap-2 text-sm"><HeartPulse size={14}/> St. Mary's</div>
+                        <span className="text-[8px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Available</span>
+                      </div>
+                      <div className="text-[9px] text-gray-400 mt-0.5">2.1km &bull; ICU: 8/15 &bull; Est: 5 mins</div>
                     </button>
                   </div>
                 )}
@@ -844,6 +867,8 @@ const simulateRogueDetection = () => {
                 <>
                   <Polyline positions={routeToHospA} color="#10b981" weight={4} opacity={0.6} dashArray="5, 10" />
                   <Polyline positions={routeToHospB} color="#3b82f6" weight={4} opacity={0.6} dashArray="5, 10" />
+                  <Polyline positions={routeToHospC} color="#f59e0b" weight={4} opacity={0.6} dashArray="5, 10" />
+                  <Polyline positions={routeToHospD} color="#a855f7" weight={4} opacity={0.6} dashArray="5, 10" />
                 </>
               )}
 
@@ -853,11 +878,19 @@ const simulateRogueDetection = () => {
               {['TRANSPORTING', 'ARRIVED'].includes(missionStatus) && selectedHospital === 'B' && (
                 <Polyline positions={routeToHospB} color="#3b82f6" weight={6} opacity={0.9} />
               )}
+              {['TRANSPORTING', 'ARRIVED'].includes(missionStatus) && selectedHospital === 'C' && (
+                <Polyline positions={routeToHospC} color="#f59e0b" weight={6} opacity={0.9} />
+              )}
+              {['TRANSPORTING', 'ARRIVED'].includes(missionStatus) && selectedHospital === 'D' && (
+                <Polyline positions={routeToHospD} color="#a855f7" weight={6} opacity={0.9} />
+              )}
 
               <Marker position={baseStation} icon={baseStationIcon}><Popup>Base Station</Popup></Marker>
               <Marker position={patientLoc} icon={patientIcon}><Popup>Critical Patient</Popup></Marker>
               <Marker position={hospitalA} icon={hospitalIconA}><Popup>City Central Hospital</Popup></Marker>
               <Marker position={hospitalB} icon={hospitalIconB}><Popup>Apollo Trauma Center</Popup></Marker>
+              <Marker position={hospitalC} icon={hospitalIconC}><Popup>General Medical Center</Popup></Marker>
+              <Marker position={hospitalD} icon={hospitalIconD}><Popup>St. Mary's Care Hospital</Popup></Marker>
               
               <Marker position={ambulanceLoc} icon={ambulanceIconImproved} eventHandlers={{ click: () => setShowAmbulanceDetails(!showAmbulanceDetails) }}>
                 {showAmbulanceDetails && (
