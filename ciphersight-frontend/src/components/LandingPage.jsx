@@ -299,7 +299,7 @@ export default function LandingPage({ onStart }) {
 
         {/* Title Text */}
         <div className="absolute w-full px-4 text-center z-30 flex flex-col items-center justify-center mt-[-10vh] md:mt-0 pointer-events-none">
-          <motion.h1 initial={{ y: 50, opacity: 0 }} animate={{ y: stage === 'hero' && !isAuthOpen ? 0 : 50, opacity: stage === 'hero' && !isAuthOpen ? 1 : 0 }} transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }} className="text-[15vw] leading-[0.9] md:text-[7.5vw] font-black tracking-tighter md:leading-[0.85] flex flex-col mix-blend-difference">
+          <motion.h1 initial={{ y: 50, opacity: 0 }} animate={{ y: stage === 'hero' && !isAuthOpen ? 0 : 50, opacity: stage === 'hero' && !isAuthOpen ? 1 : 0 }} transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }} className="text-[10vw] leading-[1.0] md:text-[5vw] font-black tracking-tighter md:leading-[0.85] flex flex-col mix-blend-difference">
             <span className="text-white">A SECURE BIRD'S EYE VIEW</span>
             <span className="text-[#9D00FF]">FOR LIFESAVING RESPONSE</span>
           </motion.h1>
