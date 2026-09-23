@@ -17,10 +17,11 @@ services:
         value: https://ciphersight-frontend.onrender.com
 
   # ==========================================
-  # ⚛️  FRONTEND — React/Vite Static Site
+  # ⚛️ FRONTEND — React/Vite Static Site
   # ==========================================
-  - type: static
+  - type: web
     name: ciphersight-frontend
+    runtime: static
     rootDir: ciphersight-frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
