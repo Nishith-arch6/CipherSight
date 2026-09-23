@@ -6,6 +6,9 @@ import { ArrowRight, X, Menu, Ambulance, Power, ShieldCheck } from 'lucide-react
 import GridStatus from './GridStatus';
 import SystemLogs from './SystemLogs';
 
+// Backend URL from environment (Render) or fallback to localhost
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || `http://${window.location.hostname}:5000`;
+
 // 🌍 3D GLOBE COMPONENT
 const LogoGlobe = ({ className }) => {
   const canvasRef = useRef();
@@ -82,7 +85,7 @@ export default function LandingPage({ onStart }) {
 
       setLoginError('');
       try {
-        const registerUrl = `http://${window.location.hostname}:5000/api/register`;
+        const registerUrl = `${BACKEND_URL}/api/register`;
         const response = await fetch(registerUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -110,7 +113,7 @@ export default function LandingPage({ onStart }) {
 
     setLoginError('');
 
-    const backendUrl = `http://${window.location.hostname}:5000/api/login`;
+    const backendUrl = `${BACKEND_URL}/api/login`;
 
     try {
       const response = await fetch(backendUrl, {
@@ -336,6 +339,11 @@ export default function LandingPage({ onStart }) {
               </h2>
 
               <div className="h-6 mb-4 text-center">
+                {/* Demo credentials hint */}
+                <div className="mb-3 px-4 py-2 bg-[#9D00FF]/10 border border-[#9D00FF]/20 rounded-xl text-center">
+                  <p className="text-[10px] text-[#9D00FF] font-bold tracking-widest uppercase">Demo Access</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">Badge: <span className="text-white font-bold">OP-108</span> &nbsp;|&nbsp; Passkey: <span className="text-white font-bold">cipher2026</span></p>
+                </div>
                 <AnimatePresence>
                   {regSuccess && (
                     <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-emerald-400 text-xs font-bold tracking-widest uppercase">

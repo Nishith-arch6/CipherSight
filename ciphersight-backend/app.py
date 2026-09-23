@@ -14,8 +14,11 @@ import random
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+
+# Allow the deployed Vercel frontend + localhost for CORS
+FRONTEND_URL = os.getenv("FRONTEND_URL", "*")
+CORS(app, origins=[FRONTEND_URL, "http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"])
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 # ==========================================
 # 🗄️ DATABASE SETUP
@@ -40,7 +43,7 @@ class AnalyticsLog(db.Model):
 # ==========================================
 # 🔐 AUTH & REGISTRATION
 # ==========================================
-SECRET_KEY = "ciphersight_ultra_secret_key_2026_secure"
+SECRET_KEY = os.getenv("SECRET_KEY", "ciphersight_ultra_secret_key_2026_secure")
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -411,11 +414,24 @@ def handle_reset():
         'time_elapsed': '0m'
     })
 
+def seed_database():
+    """Seed default operators and analytics data on startup."""
+    db.create_all()
+    if not Operator.query.filter_by(badge='ADMIN-X').first():
+        db.session.add(Operator(badge='ADMIN-X', passkey='root_cipher_zero', role='Admin'))
+    if not Operator.query.filter_by(badge='OP-108').first():
+        db.session.add(Operator(badge='OP-108', passkey='cipher2026', role='Operator'))
+    if not AnalyticsLog.query.first():
+        for entry in [
+            ('00:00', 6.5, 10), ('04:00', 6.0, 5), ('08:00', 14.2, 85),
+            ('10:00', 9.5, 50), ('12:00', 8.5, 40), ('16:00', 10.1, 65),
+            ('18:00', 15.5, 90), ('20:00', 9.0, 45), ('21:00', 11.2, 60), ('23:00', 7.2, 20)
+        ]:
+            db.session.add(AnalyticsLog(time_label=entry[0], response_time=entry[1], congestion=entry[2]))
+    db.session.commit()
+
+with app.app_context():
+    seed_database()
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        if not Operator.query.filter_by(badge='ADMIN-X').first():
-            db.session.add(Operator(badge='ADMIN-X', passkey='root_cipher_zero', role='Admin'))
-            db.session.add(AnalyticsLog(time_label="10:00", response_time=4.5, congestion=30))
-            db.session.commit()
     socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)

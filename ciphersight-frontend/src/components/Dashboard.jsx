@@ -7,6 +7,9 @@ import { Siren, Map as MapIcon, Camera, X, Play, RotateCcw, Activity, ShieldChec
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts';
 import { io } from 'socket.io-client';
 
+// Backend URL from environment (Render) or fallback to localhost
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || `http://${window.location.hostname}:5000`;
+
 // ==========================================
 // 🎨 INJECTED CSS
 // ==========================================
@@ -67,6 +70,7 @@ const hospitalIconA = new L.divIcon({ className: 'custom-h-a', html: `<div style
 const hospitalIconB = new L.divIcon({ className: 'custom-h-b', html: `<div style="background: #3b82f6; width: 30px; height: 30px; border-radius: 5px; color: white; display:flex; align-items:center; justify-content:center; font-weight:bold; border: 2px solid white; box-shadow: 0 0 15px #3b82f6;">H</div>` });
 const hospitalIconC = new L.divIcon({ className: 'custom-h-c', html: `<div style="background: #f59e0b; width: 30px; height: 30px; border-radius: 5px; color: white; display:flex; align-items:center; justify-content:center; font-weight:bold; border: 2px solid white; box-shadow: 0 0 15px #f59e0b;">H</div>` });
 const hospitalIconD = new L.divIcon({ className: 'custom-h-d', html: `<div style="background: #a855f7; width: 30px; height: 30px; border-radius: 5px; color: white; display:flex; align-items:center; justify-content:center; font-weight:bold; border: 2px solid white; box-shadow: 0 0 15px #a855f7;">H</div>` });
+const hospitalIconE = new L.divIcon({ className: 'custom-h-e', html: `<div style="background: #06b6d4; width: 30px; height: 30px; border-radius: 5px; color: white; display:flex; align-items:center; justify-content:center; font-weight:bold; border: 2px solid white; box-shadow: 0 0 15px #06b6d4;">H</div>` });
 
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -87,12 +91,15 @@ const CustomTooltip = ({ active, payload, label }) => {
 const offlineAnalyticsData = [
   { time: "00:00", responseTime: 6.5, congestion: 10 },
   { time: "04:00", responseTime: 6.0, congestion: 5 },
+  { time: "06:00", responseTime: 7.8, congestion: 22 },
   { time: "08:00", responseTime: 14.2, congestion: 85 },
   { time: "10:00", responseTime: 9.5, congestion: 50 },
   { time: "12:00", responseTime: 8.5, congestion: 40 },
+  { time: "14:00", responseTime: 7.9, congestion: 35 },
   { time: "16:00", responseTime: 10.1, congestion: 65 },
   { time: "18:00", responseTime: 15.5, congestion: 90 },
   { time: "20:00", responseTime: 9.0, congestion: 45 },
+  { time: "21:00", responseTime: 11.2, congestion: 60 },
   { time: "23:00", responseTime: 7.2, congestion: 20 }
 ];
 
@@ -118,7 +125,7 @@ const getMetricBtnStyle = (isActive, activeColor) => ({
 // ==========================================
 // 🚀 FEATURE PANELS (Sidebar Content)
 // ==========================================
-const FeaturePanels = ({ activeTab, onClose }) => {
+const FeaturePanels = ({ activeTab, onClose, vitals }) => {
   const [analyticsMetric, setAnalyticsMetric] = useState('responseTime');
   const metricCfg = analyticsMetricConfig[analyticsMetric];
 
@@ -432,17 +439,17 @@ tr:nth-child(even){background:#f8fafc}
                 
                 <div className="p-4 bg-red-900/20 border border-red-500/30 rounded-xl flex flex-col justify-center">
                   <p className="text-gray-400 text-[10px] md:text-xs font-bold uppercase tracking-widest mb-1">Heart Rate</p>
-                  <p className="text-3xl font-black text-red-400">114 <span className="text-sm font-bold text-red-500/70">BPM</span></p>
+                  <p className="text-3xl font-black text-red-400 transition-all duration-700">{vitals.hr} <span className="text-sm font-bold text-red-500/70">BPM</span></p>
                 </div>
                 
                 <div className="p-4 bg-blue-900/20 border border-blue-500/30 rounded-xl flex flex-col justify-center">
                   <p className="text-gray-400 text-[10px] md:text-xs font-bold uppercase tracking-widest mb-1">SpO2</p>
-                  <p className="text-3xl font-black text-blue-400">92 <span className="text-sm font-bold text-blue-500/70">%</span></p>
+                  <p className="text-3xl font-black text-blue-400 transition-all duration-700">{vitals.spo2} <span className="text-sm font-bold text-blue-500/70">%</span></p>
                 </div>
                 
                 <div className="p-4 bg-emerald-900/20 border border-emerald-500/30 rounded-xl flex flex-col justify-center">
                   <p className="text-gray-400 text-[10px] md:text-xs font-bold uppercase tracking-widest mb-1">Blood Pressure</p>
-                  <p className="text-3xl font-black text-emerald-400">140/90</p>
+                  <p className="text-3xl font-black text-emerald-400 transition-all duration-700">{vitals.bp}</p>
                 </div>
 
               </div>
@@ -548,6 +555,22 @@ export default function Dashboard({ onBack }) {
   const socketRef = useRef(null);
   const localSimIntervalRef = useRef(null);
 
+  // Patient vitals live animation
+  const [vitals, setVitals] = useState({ hr: 114, spo2: 92, bp: '140/90' });
+
+  useEffect(() => {
+    const vitalsInterval = setInterval(() => {
+      setVitals(prev => {
+        const hr = Math.max(105, Math.min(130, prev.hr + (Math.random() > 0.5 ? 1 : -1) * Math.ceil(Math.random() * 3)));
+        const spo2 = Math.max(88, Math.min(96, prev.spo2 + (Math.random() > 0.5 ? 1 : -1)));
+        const sys = Math.max(132, Math.min(152, parseInt(prev.bp.split('/')[0]) + (Math.random() > 0.5 ? 2 : -2)));
+        const dia = Math.max(85, Math.min(98, parseInt(prev.bp.split('/')[1]) + (Math.random() > 0.5 ? 1 : -1)));
+        return { hr, spo2, bp: `${sys}/${dia}` };
+      });
+    }, 1800);
+    return () => clearInterval(vitalsInterval);
+  }, []);
+
   // Map Coordinates & Detailed Street Routes (Bangalore roads)
   const baseStation = [12.9742, 77.5855];   // KG Road / Nrupathunga Rd junction
   const patientLoc  = [12.9660, 77.5910];   // Near Mission Rd / KR Rd
@@ -555,6 +578,7 @@ export default function Dashboard({ onBack }) {
   const hospitalB   = [12.9580, 77.6020];   // Apollo Trauma - Richmond Circle area
   const hospitalC   = [12.9635, 77.5760];   // General Medical - near SJP Rd / JC Rd
   const hospitalD   = [12.9810, 77.5810];   // St. Mary's - near Sheshadri Rd
+  const hospitalE   = [12.9550, 77.5700];   // Narayana Health City - south-west
 
   // Base → Patient: KG Rd south → turn east on Kasturba Rd → south to Mission Rd
   const routeToPatient = [
@@ -589,6 +613,15 @@ export default function Dashboard({ onBack }) {
     [12.9646, 77.5850], [12.9644, 77.5842], [12.9643, 77.5835], [12.9642, 77.5828],
     [12.9640, 77.5820], [12.9639, 77.5810], [12.9638, 77.5800], [12.9637, 77.5790],
     [12.9636, 77.5780], [12.9635, 77.5770], [12.9635, 77.5760],
+  ];
+
+  // Patient → St. Mary's (D): North via Kasturba Rd → west on Nrupathunga → north on Sheshadri Rd
+  // Patient → Narayana Health City (E): South-west via Kempegowda Rd
+  const routeToHospE = [
+    [12.9660, 77.5910], [12.9655, 77.5900], [12.9650, 77.5890], [12.9645, 77.5880],
+    [12.9638, 77.5868], [12.9630, 77.5855], [12.9622, 77.5840], [12.9614, 77.5825],
+    [12.9605, 77.5810], [12.9596, 77.5795], [12.9585, 77.5778], [12.9574, 77.5762],
+    [12.9564, 77.5745], [12.9555, 77.5722], [12.9550, 77.5700],
   ];
 
   // Patient → St. Mary's (D): North via Kasturba Rd → west on Nrupathunga → north on Sheshadri Rd
@@ -636,7 +669,7 @@ export default function Dashboard({ onBack }) {
       }, 1500);
     } else if (type === 'transport') {
       setMissionStatus('TRANSPORTING');
-      const routeMap = { A: routeToHospA, B: routeToHospB, C: routeToHospC, D: routeToHospD };
+      const routeMap = { A: routeToHospA, B: routeToHospB, C: routeToHospC, D: routeToHospD, E: routeToHospE };
       const route = routeMap[hospId] || routeToHospA;
       localSimIntervalRef.current = setInterval(() => {
         step++;
@@ -670,7 +703,7 @@ export default function Dashboard({ onBack }) {
       setCctvError(true);
     }
 
-    socketRef.current = io(socketUrl, { 
+    socketRef.current = io(BACKEND_URL, { 
       auth: { token: secureToken },
       reconnectionAttempts: 1,
       timeout: 2000
@@ -817,7 +850,7 @@ const simulateRogueDetection = () => {
         </div>
       </div>
 
-      <FeaturePanels activeTab={activeTab} onClose={() => setActiveTab('Dashboard')} />
+      <FeaturePanels activeTab={activeTab} onClose={() => setActiveTab('Dashboard')} vitals={vitals} />
 
       {/* MASSIVE CYBER THREAT OVERLAY */}
       {cyberThreat && (
@@ -951,6 +984,14 @@ const simulateRogueDetection = () => {
                       </div>
                       <div className="text-[8px] text-gray-400 mt-0.5">2.1km • ICU: 8/15 • Est: 5 mins</div>
                     </button>
+
+                    <button onClick={() => dispatchToHospital('E')} className="w-full p-2 bg-cyan-500/10 border border-cyan-500/30 rounded-lg text-left hover:bg-cyan-500/20 transition-all cursor-pointer">
+                      <div className="flex justify-between items-center">
+                        <div className="font-bold text-cyan-400 flex items-center gap-1.5 text-xs"><Building2 size={12}/> Narayana Health</div>
+                        <span className="text-[7px] bg-cyan-500/20 text-cyan-300 px-1 py-0.5 rounded font-bold uppercase tracking-wider">Specialist</span>
+                      </div>
+                      <div className="text-[8px] text-gray-400 mt-0.5">3.0km • ICU: 15/40 • Est: 7 mins</div>
+                    </button>
                   </div>
                 )}
 
@@ -987,6 +1028,7 @@ const simulateRogueDetection = () => {
                   <Polyline positions={routeToHospB} color="#3b82f6" weight={4} opacity={0.6} dashArray="5, 10" />
                   <Polyline positions={routeToHospC} color="#f59e0b" weight={4} opacity={0.6} dashArray="5, 10" />
                   <Polyline positions={routeToHospD} color="#a855f7" weight={4} opacity={0.6} dashArray="5, 10" />
+                  <Polyline positions={routeToHospE} color="#06b6d4" weight={4} opacity={0.6} dashArray="5, 10" />
                 </>
               )}
 
@@ -1002,6 +1044,9 @@ const simulateRogueDetection = () => {
               {['TRANSPORTING', 'ARRIVED'].includes(missionStatus) && selectedHospital === 'D' && (
                 <Polyline positions={routeToHospD} color="#a855f7" weight={6} opacity={0.9} />
               )}
+              {['TRANSPORTING', 'ARRIVED'].includes(missionStatus) && selectedHospital === 'E' && (
+                <Polyline positions={routeToHospE} color="#06b6d4" weight={6} opacity={0.9} />
+              )}
 
               <Marker position={baseStation} icon={baseStationIcon}><Popup>Base Station</Popup></Marker>
               <Marker position={patientLoc} icon={patientIcon}><Popup>Critical Patient</Popup></Marker>
@@ -1009,6 +1054,7 @@ const simulateRogueDetection = () => {
               <Marker position={hospitalB} icon={hospitalIconB}><Popup>Apollo Trauma Center</Popup></Marker>
               <Marker position={hospitalC} icon={hospitalIconC}><Popup>General Medical Center</Popup></Marker>
               <Marker position={hospitalD} icon={hospitalIconD}><Popup>St. Mary's Care Hospital</Popup></Marker>
+              <Marker position={hospitalE} icon={hospitalIconE}><Popup>Narayana Health City</Popup></Marker>
               
               <Marker position={ambulanceLoc} icon={ambulanceIconImproved} eventHandlers={{ click: () => setShowAmbulanceDetails(!showAmbulanceDetails) }}>
                 {showAmbulanceDetails && (
@@ -1063,7 +1109,7 @@ const simulateRogueDetection = () => {
                     </div>
                   ) : (
                     <img 
-                      src={`http://${window.location.hostname}:5000/api/cctv`} 
+                      src={`${BACKEND_URL}/api/cctv`} 
                       alt="Live AI Stream" 
                       className="w-full h-full object-contain" 
                       onError={() => setCctvError(true)}
@@ -1111,8 +1157,9 @@ const simulateRogueDetection = () => {
                   { name: 'Apollo Trauma', icu: [12,30], vent: [8,20], amb: [7,12], accent: 'blue', status: 'OK' },
                   { name: 'General Medical', icu: [2,12], vent: [3,10], amb: [2,5], accent: 'amber', status: 'LOAD' },
                   { name: "St. Mary's", icu: [8,15], vent: [6,8], amb: [3,6], accent: 'purple', status: 'OK' },
+                  { name: 'Narayana Health', icu: [15,40], vent: [12,25], amb: [6,10], accent: 'cyan', status: 'OK' },
                 ].map((h, i) => {
-                  const accentMap = { emerald: 'text-emerald-400 border-emerald-500/20 bg-emerald-500/5', blue: 'text-blue-400 border-blue-500/20 bg-blue-500/5', amber: 'text-amber-400 border-amber-500/20 bg-amber-500/5', purple: 'text-purple-400 border-purple-500/20 bg-purple-500/5' };
+                  const accentMap = { emerald: 'text-emerald-400 border-emerald-500/20 bg-emerald-500/5', blue: 'text-blue-400 border-blue-500/20 bg-blue-500/5', amber: 'text-amber-400 border-amber-500/20 bg-amber-500/5', purple: 'text-purple-400 border-purple-500/20 bg-purple-500/5', cyan: 'text-cyan-400 border-cyan-500/20 bg-cyan-500/5' };
                   const cls = accentMap[h.accent];
                   const icuPct = Math.round(((h.icu[1]-h.icu[0])/h.icu[1])*100);
                   const icuColor = icuPct > 75 ? 'text-red-400' : icuPct > 50 ? 'text-amber-400' : 'text-emerald-400';

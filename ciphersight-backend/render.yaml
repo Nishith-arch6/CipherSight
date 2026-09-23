@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: ciphersight-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --worker-class eventlet -w 1 app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://ciphersight.vercel.app
+      - key: LIVE_DATABASE_URL
+        value: sqlite:///ciphersight.db
