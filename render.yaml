@@ -23,7 +23,6 @@ services:
   - type: web
     name: ciphersight-frontend
     runtime: static
-    plan: free
     rootDir: ciphersight-frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
