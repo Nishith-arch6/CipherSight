@@ -1,0 +1,33 @@
+services:
+  # ==========================================
+  # 🐍 BACKEND — Flask + SocketIO Web Service
+  # ==========================================
+  - type: web
+    name: ciphersight-backend
+    runtime: python
+    rootDir: ciphersight-backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --worker-class eventlet -w 1 app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: LIVE_DATABASE_URL
+        value: sqlite:///ciphersight.db
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://ciphersight-frontend.onrender.com
+
+  # ==========================================
+  # ⚛️  FRONTEND — React/Vite Static Site
+  # ==========================================
+  - type: static
+    name: ciphersight-frontend
+    rootDir: ciphersight-frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_BACKEND_URL
+        value: https://ciphersight-backend.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
