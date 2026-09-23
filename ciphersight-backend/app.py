@@ -6,7 +6,12 @@ import os
 from dotenv import load_dotenv # type: ignore
 import time
 import threading
-import cv2  # type: ignore
+try:
+    import cv2  # type: ignore
+    HAS_CV2 = True
+except ImportError:
+    HAS_CV2 = False
+    cv2 = None
 import jwt # type: ignore
 import datetime
 import random
@@ -120,6 +125,9 @@ _VEHICLE_CLASSES = {2: 'car', 3: 'motorcycle', 5: 'bus', 7: 'truck'}
 
 @app.route('/api/cctv')
 def cctv_feed():
+    if not HAS_CV2:
+        return jsonify({'status': 'OFFLINE', 'message': 'CCTV Stream AI engine operating in browser-side canvas simulation mode.'}), 503
+
     def generate():
         cap = cv2.VideoCapture('traffic.mp4')
 
